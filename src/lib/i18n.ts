@@ -11,7 +11,7 @@ export const LANGUAGES: { code: LanguageCode; name: string; nativeName: string; 
 
 export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
   en: {
-    systemTitle: 'Haki System',
+    systemTitle: 'Julisha System',
     systemSubtitle: 'Multilingual Healthcare AI Platform for PHCs & CHCs',
     roleAdmin: 'District Admin Dashboard',
     roleDoctor: 'Doctor Performance Hub',
@@ -44,7 +44,7 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
     searchDoctor: 'Search doctor or facility...',
   },
   hi: {
-    systemTitle: 'हक़ी सिस्टम (Haki System)',
+    systemTitle: 'जुलीशा सिस्टम (Julisha System)',
     systemSubtitle: 'प्राथमिक स्वास्थ्य केंद्र एवं सामुदायिक स्वास्थ्य केंद्र हेतु एआई मंच',
     roleAdmin: 'जिला प्रशासनिक डैशबोर्ड',
     roleDoctor: 'चिकित्सक प्रदर्शन हब',
@@ -77,7 +77,7 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
     searchDoctor: 'डॉक्टर या अस्पताल खोजें...',
   },
   sw: {
-    systemTitle: 'Mfumo wa Haki',
+    systemTitle: 'Mfumo wa Julisha',
     systemSubtitle: 'Jukwaa la Akili Bandia la Afya la Lugha Nyingi',
     roleAdmin: 'Dashibodi ya Msimamizi wa Wilaya',
     roleDoctor: 'Kituo cha Utendaji cha Daktari',
@@ -110,7 +110,7 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
     searchDoctor: 'Tafuta daktari au kituo...',
   },
   te: {
-    systemTitle: 'హాకీ సిస్టమ్ (Haki System)',
+    systemTitle: 'జులీషా సిస్టమ్ (Julisha System)',
     systemSubtitle: 'ఆరోగ్య కేంద్రాల కోసం బహుభాషా AI వేదిక',
     roleAdmin: 'జిల్లా అడ్మిన్ డాష్‌బోర్డ్',
     roleDoctor: 'వైద్యుల పనితీరు హబ్',
@@ -143,7 +143,7 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
     searchDoctor: 'వైద్యుడిని శోధించండి...',
   },
   ta: {
-    systemTitle: 'ஹாகி சிஸ்டம் (Haki System)',
+    systemTitle: 'ஜூலிஷா சிஸ்டம் (Julisha System)',
     systemSubtitle: 'சுகாதார மையங்களுக்கான AI தளம்',
     roleAdmin: 'மாவட்ட நிர்வாக டாஷ்போர்டு',
     roleDoctor: 'மருத்துவர் செயல்திறன் மையம்',
@@ -176,7 +176,7 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
     searchDoctor: 'மருத்துவரைத் தேடுக...',
   },
   kn: {
-    systemTitle: 'ಹಾಕಿ ಸಿಸ್ಟಮ್ (Haki System)',
+    systemTitle: 'ಜುಲಿಷಾ ಸಿಸ್ಟಮ್ (Julisha System)',
     systemSubtitle: 'ಆರೋಗ್ಯ ಕೇಂದ್ರಗಳಿಗೆ ಬಹುಭಾಷಾ AI ವೇದಿಕೆ',
     roleAdmin: 'ಜಿಲ್ಲಾ ಅಡ್ಮಿನ್ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್',
     roleDoctor: 'ವೈದ್ಯರ ಕಾರ್ಯಾಚರಣೆ ಕೇಂದ್ರ',
