@@ -1,0 +1,150 @@
+export type HospitalType = 'PHC' | 'CHC';
+
+export type TrendDirection = 'improving' | 'declining' | 'stable';
+
+export interface Hospital {
+  id: string;
+  name: string;
+  district: string;
+  type: HospitalType;
+  capacity: number;
+  contactInfo: {
+    phone: string;
+    email: string;
+    address: string;
+  };
+  totalScore: number;
+  doctorSatisfactionScore: number;
+  attendanceScore: number;
+  stockAvailabilityScore: number;
+  volumeEfficiencyScore: number;
+  trendDirection: TrendDirection;
+  declinePercentage?: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Doctor {
+  id: string;
+  hospitalId: string;
+  hospitalName?: string;
+  name: string;
+  specialization: string;
+  employeeId: string;
+  contact: string;
+  shiftStartTime: string; // e.g. "08:00"
+  overallRating?: number;
+  feedbackCount?: number;
+  createdAt: string;
+}
+
+export interface PatientFeedback {
+  id: string;
+  doctorId: string;
+  hospitalId: string;
+  patientIdentifier: string; // hashed fingerprint or token
+  communicationClarity: number; // 0-1 or 1-5 scale
+  conduct: number;
+  userInteractiveness: number;
+  dressCode: number;
+  comments?: string;
+  createdAt: string;
+  language?: string;
+  offlineSynced?: boolean;
+}
+
+export interface AttendanceRecord {
+  id: string;
+  doctorId: string;
+  hospitalId: string;
+  firstPatientContactTime: string; // ISO string
+  shiftStartTime: string; // "08:00"
+  lateMinutes: number;
+  status: 'on_time' | 'late' | 'absent';
+  createdAt: string;
+}
+
+export interface StockRecord {
+  id: string;
+  hospitalId: string;
+  medicineName: string;
+  category: 'Antibiotics' | 'Vaccines' | 'Analgesics' | 'Maternal Care' | 'Chronic Care' | 'Emergency';
+  currentQuantity: number;
+  thresholdQuantity: number;
+  available: boolean;
+  severity: number; // 0 to 1
+  date: string;
+  createdAt: string;
+}
+
+export interface StockoutCorrelation {
+  hospitalId: string;
+  hospitalName: string;
+  correlationCoefficient: number; // 0 - 100%
+  significanceLevel: 'High' | 'Moderate' | 'Low';
+  impactPercentage: number;
+  topShortageMedicines: string[];
+  interpretation: string;
+  timeline: {
+    date: string;
+    stockAvailabilityPct: number;
+    patientSatisfactionPct: number;
+  }[];
+}
+
+export interface AIRecommendation {
+  id: string;
+  targetId: string;
+  targetType: 'doctor' | 'hospital';
+  recommendationType: 'individual' | 'systemic';
+  content: string;
+  category: 'performance' | 'stock' | 'attendance' | 'communication';
+  generatedAt: string;
+  implemented: boolean;
+  effectivenessScore?: number;
+}
+
+export interface AlertItem {
+  id: string;
+  hospitalId: string;
+  hospitalName: string;
+  alertType: 'stockout' | 'declining_performance' | 'attendance';
+  severity: 'critical' | 'warning' | 'info';
+  message: string;
+  acknowledgedBy?: string;
+  createdAt: string;
+  resolvedAt?: string;
+}
+
+export interface DoctorPerformanceAnalytics {
+  doctorId: string;
+  doctorName: string;
+  hospitalName: string;
+  overallScore: number;
+  categoryScores: {
+    communication: number;
+    conduct: number;
+    interactiveness: number;
+    dressCode: number;
+  };
+  trendDirection: TrendDirection;
+  weaknesses: { category: string; severity: 'critical' | 'warning' | 'minor'; percentage: number }[];
+  attendanceOnTimePct: number;
+  totalFeedbacks: number;
+  historicalScores: { date: string; score: number }[];
+}
+
+export interface ResourceRedistributionPlan {
+  id: string;
+  sourceHospitalId: string;
+  sourceHospitalName: string;
+  targetHospitalId: string;
+  targetHospitalName: string;
+  medicineName: string;
+  quantity: number;
+  urgency: 'critical' | 'high' | 'medium';
+  reason: string;
+  status: 'recommended' | 'approved' | 'transferred';
+}
+
+export type LanguageCode = 'en' | 'hi' | 'sw' | 'te' | 'ta' | 'kn';

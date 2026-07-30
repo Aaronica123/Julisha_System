@@ -1,0 +1,341 @@
+import { Hospital, Doctor, StockRecord, AttendanceRecord, PatientFeedback, AlertItem, ResourceRedistributionPlan } from './types';
+
+export const INITIAL_HOSPITALS: Hospital[] = [
+  {
+    id: 'hosp-1',
+    name: 'Sunrise Community Health Center (CHC)',
+    district: 'Central District',
+    type: 'CHC',
+    capacity: 45,
+    contactInfo: { phone: '+1 555-0192', email: 'sunrise.chc@health.gov', address: '102 Civil Lines, Central' },
+    totalScore: 88.5,
+    doctorSatisfactionScore: 91.0,
+    attendanceScore: 94.0,
+    stockAvailabilityScore: 82.0,
+    volumeEfficiencyScore: 87.0,
+    trendDirection: 'improving',
+    createdAt: '2025-01-10T08:00:00Z',
+    updatedAt: '2026-07-30T10:00:00Z',
+  },
+  {
+    id: 'hosp-2',
+    name: 'Green Valley Primary Health Center (PHC)',
+    district: 'Central District',
+    type: 'PHC',
+    capacity: 20,
+    contactInfo: { phone: '+1 555-0144', email: 'greenvalley.phc@health.gov', address: 'Village Green, Ward 4' },
+    totalScore: 48.2,
+    doctorSatisfactionScore: 52.0,
+    attendanceScore: 61.0,
+    stockAvailabilityScore: 35.0,
+    volumeEfficiencyScore: 45.0,
+    trendDirection: 'declining',
+    declinePercentage: 14.8,
+    createdAt: '2025-01-12T08:00:00Z',
+    updatedAt: '2026-07-30T10:00:00Z',
+  },
+  {
+    id: 'hosp-3',
+    name: 'Riverdale Public Health Clinic',
+    district: 'North District',
+    type: 'PHC',
+    capacity: 15,
+    contactInfo: { phone: '+1 555-0823', email: 'riverdale.phc@health.gov', address: '44 River Road, North' },
+    totalScore: 76.4,
+    doctorSatisfactionScore: 80.0,
+    attendanceScore: 85.0,
+    stockAvailabilityScore: 68.0,
+    volumeEfficiencyScore: 72.0,
+    trendDirection: 'stable',
+    createdAt: '2025-02-01T08:00:00Z',
+    updatedAt: '2026-07-30T10:00:00Z',
+  },
+  {
+    id: 'hosp-4',
+    name: 'Highland CHC & Trauma Care',
+    district: 'North District',
+    type: 'CHC',
+    capacity: 60,
+    contactInfo: { phone: '+1 555-0911', email: 'highland.chc@health.gov', address: 'Highland Bypass, North' },
+    totalScore: 59.8,
+    doctorSatisfactionScore: 64.0,
+    attendanceScore: 70.0,
+    stockAvailabilityScore: 48.0,
+    volumeEfficiencyScore: 57.0,
+    trendDirection: 'declining',
+    declinePercentage: 11.2,
+    createdAt: '2025-02-10T08:00:00Z',
+    updatedAt: '2026-07-30T10:00:00Z',
+  },
+  {
+    id: 'hosp-5',
+    name: 'Metro Model PHC',
+    district: 'Central District',
+    type: 'PHC',
+    capacity: 25,
+    contactInfo: { phone: '+1 555-0377', email: 'metromodel.phc@health.gov', address: 'Metro Extension, Sector 9' },
+    totalScore: 92.4,
+    doctorSatisfactionScore: 94.0,
+    attendanceScore: 96.0,
+    stockAvailabilityScore: 90.0,
+    volumeEfficiencyScore: 89.5,
+    trendDirection: 'improving',
+    createdAt: '2025-01-05T08:00:00Z',
+    updatedAt: '2026-07-30T10:00:00Z',
+  }
+];
+
+export const INITIAL_DOCTORS: Doctor[] = [
+  {
+    id: 'doc-101',
+    hospitalId: 'hosp-1',
+    hospitalName: 'Sunrise Community Health Center (CHC)',
+    name: 'Dr. Rajesh Sharma',
+    specialization: 'General Physician & Public Health',
+    employeeId: 'EMP-9041',
+    contact: '+1 555-2201',
+    shiftStartTime: '08:00',
+    overallRating: 4.6,
+    feedbackCount: 142,
+    createdAt: '2025-01-15T08:00:00Z',
+  },
+  {
+    id: 'doc-102',
+    hospitalId: 'hosp-1',
+    hospitalName: 'Sunrise Community Health Center (CHC)',
+    name: 'Dr. Priya Nair',
+    specialization: 'Maternal & Child Health Specialist',
+    employeeId: 'EMP-9042',
+    contact: '+1 555-2202',
+    shiftStartTime: '08:30',
+    overallRating: 4.8,
+    feedbackCount: 189,
+    createdAt: '2025-01-18T08:00:00Z',
+  },
+  {
+    id: 'doc-201',
+    hospitalId: 'hosp-2',
+    hospitalName: 'Green Valley Primary Health Center (PHC)',
+    name: 'Dr. Vikram Patel',
+    specialization: 'General Medical Officer',
+    employeeId: 'EMP-8812',
+    contact: '+1 555-3301',
+    shiftStartTime: '08:00',
+    overallRating: 3.1,
+    feedbackCount: 88,
+    createdAt: '2025-02-01T08:00:00Z',
+  },
+  {
+    id: 'doc-202',
+    hospitalId: 'hosp-2',
+    hospitalName: 'Green Valley Primary Health Center (PHC)',
+    name: 'Dr. Sunita Rao',
+    specialization: 'Pediatric Care Specialist',
+    employeeId: 'EMP-8815',
+    contact: '+1 555-3302',
+    shiftStartTime: '09:00',
+    overallRating: 3.4,
+    feedbackCount: 65,
+    createdAt: '2025-02-05T08:00:00Z',
+  },
+  {
+    id: 'doc-301',
+    hospitalId: 'hosp-3',
+    hospitalName: 'Riverdale Public Health Clinic',
+    name: 'Dr. Amina Hassan',
+    specialization: 'Community Medicine Specialist',
+    employeeId: 'EMP-7720',
+    contact: '+1 555-4401',
+    shiftStartTime: '08:00',
+    overallRating: 4.2,
+    feedbackCount: 110,
+    createdAt: '2025-02-12T08:00:00Z',
+  },
+  {
+    id: 'doc-401',
+    hospitalId: 'hosp-4',
+    hospitalName: 'Highland CHC & Trauma Care',
+    name: 'Dr. David Chen',
+    specialization: 'Emergency Medical Officer',
+    employeeId: 'EMP-6611',
+    contact: '+1 555-5501',
+    shiftStartTime: '08:00',
+    overallRating: 3.2,
+    feedbackCount: 94,
+    createdAt: '2025-02-15T08:00:00Z',
+  },
+  {
+    id: 'doc-501',
+    hospitalId: 'hosp-5',
+    hospitalName: 'Metro Model PHC',
+    name: 'Dr. Kavita Joshi',
+    specialization: 'Senior Medical Officer',
+    employeeId: 'EMP-5510',
+    contact: '+1 555-6601',
+    shiftStartTime: '08:00',
+    overallRating: 4.9,
+    feedbackCount: 210,
+    createdAt: '2025-01-08T08:00:00Z',
+  }
+];
+
+export const INITIAL_STOCKS: StockRecord[] = [
+  // Green Valley PHC (Critical stockouts causing satisfaction drop)
+  { id: 'stk-201', hospitalId: 'hosp-2', medicineName: 'Amoxicillin 500mg', category: 'Antibiotics', currentQuantity: 12, thresholdQuantity: 150, available: false, severity: 0.95, date: '2026-07-30', createdAt: '2026-07-30T08:00:00Z' },
+  { id: 'stk-202', hospitalId: 'hosp-2', medicineName: 'Paracetamol 500mg', category: 'Analgesics', currentQuantity: 45, thresholdQuantity: 300, available: false, severity: 0.85, date: '2026-07-30', createdAt: '2026-07-30T08:00:00Z' },
+  { id: 'stk-203', hospitalId: 'hosp-2', medicineName: 'Iron Folic Acid Tablets', category: 'Maternal Care', currentQuantity: 0, thresholdQuantity: 200, available: false, severity: 1.0, date: '2026-07-30', createdAt: '2026-07-30T08:00:00Z' },
+  { id: 'stk-204', hospitalId: 'hosp-2', medicineName: 'Oral Rehydration Salts (ORS)', category: 'Emergency', currentQuantity: 80, thresholdQuantity: 250, available: false, severity: 0.70, date: '2026-07-30', createdAt: '2026-07-30T08:00:00Z' },
+
+  // Sunrise CHC (Healthy stock)
+  { id: 'stk-101', hospitalId: 'hosp-1', medicineName: 'Amoxicillin 500mg', category: 'Antibiotics', currentQuantity: 420, thresholdQuantity: 150, available: true, severity: 0, date: '2026-07-30', createdAt: '2026-07-30T08:00:00Z' },
+  { id: 'stk-102', hospitalId: 'hosp-1', medicineName: 'Paracetamol 500mg', category: 'Analgesics', currentQuantity: 850, thresholdQuantity: 300, available: true, severity: 0, date: '2026-07-30', createdAt: '2026-07-30T08:00:00Z' },
+  { id: 'stk-103', hospitalId: 'hosp-1', medicineName: 'Iron Folic Acid Tablets', category: 'Maternal Care', currentQuantity: 610, thresholdQuantity: 200, available: true, severity: 0, date: '2026-07-30', createdAt: '2026-07-30T08:00:00Z' },
+
+  // Highland CHC
+  { id: 'stk-401', hospitalId: 'hosp-4', medicineName: 'Insulin Regular 100IU', category: 'Chronic Care', currentQuantity: 5, thresholdQuantity: 50, available: false, severity: 0.90, date: '2026-07-30', createdAt: '2026-07-30T08:00:00Z' },
+  { id: 'stk-402', hospitalId: 'hosp-4', medicineName: 'Amlodipine 5mg', category: 'Chronic Care', currentQuantity: 18, thresholdQuantity: 200, available: false, severity: 0.88, date: '2026-07-30', createdAt: '2026-07-30T08:00:00Z' },
+
+  // Metro Model PHC
+  { id: 'stk-501', hospitalId: 'hosp-5', medicineName: 'Amoxicillin 500mg', category: 'Antibiotics', currentQuantity: 500, thresholdQuantity: 100, available: true, severity: 0, date: '2026-07-30', createdAt: '2026-07-30T08:00:00Z' }
+];
+
+export const INITIAL_ATTENDANCE: AttendanceRecord[] = [
+  { id: 'att-1', doctorId: 'doc-101', hospitalId: 'hosp-1', firstPatientContactTime: '2026-07-30T08:05:00Z', shiftStartTime: '08:00', lateMinutes: 5, status: 'on_time', createdAt: '2026-07-30T08:05:00Z' },
+  { id: 'att-2', doctorId: 'doc-102', hospitalId: 'hosp-1', firstPatientContactTime: '2026-07-30T08:32:00Z', shiftStartTime: '08:30', lateMinutes: 2, status: 'on_time', createdAt: '2026-07-30T08:32:00Z' },
+  { id: 'att-3', doctorId: 'doc-201', hospitalId: 'hosp-2', firstPatientContactTime: '2026-07-30T08:48:00Z', shiftStartTime: '08:00', lateMinutes: 48, status: 'late', createdAt: '2026-07-30T08:48:00Z' },
+  { id: 'att-4', doctorId: 'doc-202', hospitalId: 'hosp-2', firstPatientContactTime: '2026-07-30T09:35:00Z', shiftStartTime: '09:00', lateMinutes: 35, status: 'late', createdAt: '2026-07-30T09:35:00Z' },
+  { id: 'att-5', doctorId: 'doc-501', hospitalId: 'hosp-5', firstPatientContactTime: '2026-07-30T07:58:00Z', shiftStartTime: '08:00', lateMinutes: 0, status: 'on_time', createdAt: '2026-07-30T07:58:00Z' }
+];
+
+export const INITIAL_ALERTS: AlertItem[] = [
+  {
+    id: 'alt-101',
+    hospitalId: 'hosp-2',
+    hospitalName: 'Green Valley Primary Health Center (PHC)',
+    alertType: 'declining_performance',
+    severity: 'critical',
+    message: 'CRITICAL FACILITY DECLINE: Total performance dropped by 14.8% over the past 30 days due to acute medicine stockouts and doctor arrival delays.',
+    createdAt: '2026-07-30T07:30:00Z'
+  },
+  {
+    id: 'alt-102',
+    hospitalId: 'hosp-2',
+    hospitalName: 'Green Valley Primary Health Center (PHC)',
+    alertType: 'stockout',
+    severity: 'critical',
+    message: 'STOCKOUT WARNING: Amoxicillin and Iron Folic Acid are completely depleted (0 quantity remaining vs 200 threshold).',
+    createdAt: '2026-07-30T08:10:00Z'
+  },
+  {
+    id: 'alt-103',
+    hospitalId: 'hosp-4',
+    hospitalName: 'Highland CHC & Trauma Care',
+    alertType: 'declining_performance',
+    severity: 'warning',
+    message: 'WARNING: 11.2% decline in overall score. Chronic care medicine stock level is below 10% threshold.',
+    createdAt: '2026-07-30T06:45:00Z'
+  },
+  {
+    id: 'alt-104',
+    hospitalId: 'hosp-2',
+    hospitalName: 'Green Valley Primary Health Center (PHC)',
+    alertType: 'attendance',
+    severity: 'warning',
+    message: 'ATTENDANCE ALERT: Dr. Vikram Patel registered first patient contact 48 minutes past scheduled shift start time.',
+    createdAt: '2026-07-30T08:50:00Z'
+  }
+];
+
+export const INITIAL_REDISTRIBUTION_PLANS: ResourceRedistributionPlan[] = [
+  {
+    id: 'plan-1',
+    sourceHospitalId: 'hosp-1',
+    sourceHospitalName: 'Sunrise Community Health Center (CHC)',
+    targetHospitalId: 'hosp-2',
+    targetHospitalName: 'Green Valley Primary Health Center (PHC)',
+    medicineName: 'Amoxicillin 500mg',
+    quantity: 150,
+    urgency: 'critical',
+    reason: 'Green Valley PHC is out of stock (12 left); Sunrise CHC has 420 (280% surplus).',
+    status: 'recommended'
+  },
+  {
+    id: 'plan-2',
+    sourceHospitalId: 'hosp-1',
+    sourceHospitalName: 'Sunrise Community Health Center (CHC)',
+    targetHospitalId: 'hosp-2',
+    targetHospitalName: 'Green Valley Primary Health Center (PHC)',
+    medicineName: 'Iron Folic Acid Tablets',
+    quantity: 200,
+    urgency: 'critical',
+    reason: 'Maternal health supply at 0 in Green Valley PHC; Sunrise CHC has 610 in stock.',
+    status: 'recommended'
+  },
+  {
+    id: 'plan-3',
+    sourceHospitalId: 'hosp-5',
+    sourceHospitalName: 'Metro Model PHC',
+    targetHospitalId: 'hosp-4',
+    targetHospitalName: 'Highland CHC & Trauma Care',
+    medicineName: 'Amlodipine 5mg',
+    quantity: 100,
+    urgency: 'high',
+    reason: 'Highland CHC has critical shortage for hypertensive patients.',
+    status: 'recommended'
+  }
+];
+
+export const INITIAL_FEEDBACKS: PatientFeedback[] = [
+  {
+    id: 'fb-1',
+    doctorId: 'doc-101',
+    hospitalId: 'hosp-1',
+    patientIdentifier: 'e89f91a2',
+    communicationClarity: 0.95,
+    conduct: 0.90,
+    userInteractiveness: 0.92,
+    dressCode: 0.98,
+    comments: 'Dr. Sharma explained the prescription clearly in simple terms and listened to my symptoms patiently.',
+    createdAt: '2026-07-29T10:15:00Z',
+    language: 'en'
+  },
+  {
+    id: 'fb-2',
+    doctorId: 'doc-201',
+    hospitalId: 'hosp-2',
+    patientIdentifier: 'd41f82b9',
+    communicationClarity: 0.40,
+    conduct: 0.50,
+    userInteractiveness: 0.45,
+    dressCode: 0.70,
+    comments: 'Doctor arrived late and prescribed medicine that was not available at the pharmacy desk.',
+    createdAt: '2026-07-30T09:10:00Z',
+    language: 'en'
+  },
+  {
+    id: 'fb-3',
+    doctorId: 'doc-201',
+    hospitalId: 'hosp-2',
+    patientIdentifier: 'a12c45f8',
+    communicationClarity: 0.35,
+    conduct: 0.40,
+    userInteractiveness: 0.30,
+    dressCode: 0.65,
+    comments: 'Rushed consultation. Essential fever medicines were out of stock.',
+    createdAt: '2026-07-29T11:40:00Z',
+    language: 'hi'
+  },
+  {
+    id: 'fb-4',
+    doctorId: 'doc-501',
+    hospitalId: 'hosp-5',
+    patientIdentifier: 'c99b33a1',
+    communicationClarity: 1.0,
+    conduct: 0.98,
+    userInteractiveness: 0.96,
+    dressCode: 1.0,
+    comments: 'Excellent service! Very respectful doctor and all medicines were handed over smoothly.',
+    createdAt: '2026-07-30T08:30:00Z',
+    language: 'sw'
+  }
+];

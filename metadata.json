@@ -1,0 +1,6 @@
+{
+  "name": "Haki System - PHC & CHC Healthcare AI Platform",
+  "description": "Multilingual AI healthcare management platform for PHC/CHC facilities with patient feedback, doctor metrics, stock correlation engine, and AI recommendations.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
