@@ -3,6 +3,7 @@ import { Stethoscope, Clock, Sparkles, TrendingUp, TrendingDown, Star, MessageSq
 import { Doctor, Hospital, LanguageCode, DoctorPerformanceAnalytics } from '../types';
 import { TRANSLATIONS } from '../lib/i18n';
 import { api } from '../services/api';
+import { AIResponseCard } from './AIResponseCard';
 
 interface DoctorDashboardProps {
   doctors: Doctor[];
@@ -268,8 +269,13 @@ export const DoctorDashboard: React.FC<DoctorDashboardProps> = ({
             </p>
 
             {aiAdvice ? (
-              <div className="mt-4 p-4 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-200 space-y-2 font-mono leading-relaxed max-h-80 overflow-y-auto whitespace-pre-wrap">
-                {aiAdvice}
+              <div className="mt-4">
+                <AIResponseCard
+                  content={aiAdvice}
+                  variant="doctor"
+                  title={`Mentorship & Advisory Report`}
+                  subtitle={`Targeted clinical performance guidance for ${activeDoctor?.name}`}
+                />
               </div>
             ) : (
               <div className="mt-6 p-8 rounded-xl bg-slate-950/60 border border-dashed border-slate-800 text-center space-y-2">

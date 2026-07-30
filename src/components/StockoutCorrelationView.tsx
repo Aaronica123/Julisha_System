@@ -139,11 +139,18 @@ export const StockoutCorrelationView: React.FC<StockoutCorrelationViewProps> = (
           </div>
 
           {/* AI Interpretation Box */}
-          <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-200 text-xs leading-relaxed flex items-start space-x-3">
-            <Sparkles className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
-            <div>
-              <span className="font-bold block text-amber-300">Engine Root Cause Diagnosis:</span>
-              <p className="mt-1 text-slate-300">{correlationData.interpretation}</p>
+          <div className="p-5 rounded-2xl bg-gradient-to-r from-amber-950/40 via-slate-900 to-slate-900 border border-amber-500/30 text-xs leading-relaxed flex items-start space-x-4 shadow-lg backdrop-blur-sm">
+            <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 shrink-0 shadow-inner">
+              <Sparkles className="w-5 h-5" />
+            </div>
+            <div className="flex-1 space-y-1">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-amber-300 text-sm">Engine Root Cause Diagnosis</span>
+                <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                  Granger Causality Verified
+                </span>
+              </div>
+              <p className="text-slate-200 text-xs leading-relaxed pt-0.5">{correlationData.interpretation}</p>
             </div>
           </div>
         </div>

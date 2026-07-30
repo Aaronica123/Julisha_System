@@ -5,6 +5,7 @@ import { TRANSLATIONS } from '../lib/i18n';
 import { StockoutCorrelationView } from './StockoutCorrelationView';
 import { ResourceRedistribution } from './ResourceRedistribution';
 import { api } from '../services/api';
+import { AIResponseCard } from './AIResponseCard';
 
 interface AdminDashboardProps {
   hospitals: Hospital[];
@@ -354,8 +355,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           </div>
 
           {executiveReport ? (
-            <div className="p-5 rounded-2xl bg-slate-950 border border-slate-800 text-xs text-slate-200 font-mono leading-relaxed whitespace-pre-wrap max-h-96 overflow-y-auto">
-              {executiveReport}
+            <div className="mt-4">
+              <AIResponseCard
+                content={executiveReport}
+                variant="admin"
+                title="District Health Service Executive Report"
+                subtitle="Synthesized district-wide performance metrics, stock alerts & facility trends"
+              />
             </div>
           ) : (
             <div className="p-12 text-center rounded-2xl bg-slate-950/60 border border-dashed border-slate-800 space-y-2">
@@ -506,8 +512,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               </div>
 
               {aiInterventionPlan ? (
-                <div className="p-3 bg-slate-900 rounded-lg text-xs text-slate-200 font-mono whitespace-pre-wrap max-h-60 overflow-y-auto">
-                  {aiInterventionPlan}
+                <div className="mt-2">
+                  <AIResponseCard
+                    content={aiInterventionPlan}
+                    variant="intervention"
+                    title={`Facility Intervention Action Plan`}
+                    subtitle={`72-hour and 30-day turnaround strategy for ${selectedHospitalForModal.name}`}
+                  />
                 </div>
               ) : (
                 <p className="text-xs text-slate-500 italic">Click Synthesize Plan to generate structured 72-hour and 30-day intervention strategy.</p>
