@@ -89,6 +89,11 @@ Julisha is built on a robust **Four-Tier Architecture**:
   - Evaluates both **Doctor Personal Hygiene & PPE** (hand sanitization, clean coat, gloves per patient) and **Hospital Sanitation & Disposal** (clean waiting areas, sterilised surfaces, biohazard medical waste disposal).
   - Factors directly into facility overall composite rating with a **25% weighting**.
   - Automatically flags facilities with sub-55% hygiene scores with critical **Sanitation & Hygiene Alerts** for district administrators even if doctor satisfaction or medicine stock appears acceptable.
+- **Patient Queue Response Speed & Attendance Metric Engine:**
+  - Measures the actual response delay between when a patient is scheduled/checked-in and when the doctor completes the current patient, becomes free, and attends to them.
+  - Replaces traditional shift clock-in attendance with real-time consultation response promptness tracking (promptness threshold: $\le$ 10 minutes delay).
+  - Factors directly into facility overall composite rating with a **15% weighting** alongside doctor satisfaction (30%), sanitation & hygiene (25%), medicine stock availability (20%), and volume efficiency (10%).
+  - Automatically flags **Patient Response Delay Alerts** for district administrators if average response wait times exceed 20 minutes or prompt response rate drops below 60%.
 - **Patient Feedback Hub:** Multilingual appointment feedback form with 6 rating criteria (including Doctor Hygiene & Hospital Sanitation), biometric fingerprint verification, offline queue, and AI translation.
-- **Doctor Performance Hub:** Individual doctor dashboard showing patient review summaries, 5-domain performance breakdown (including Doctor Hygiene & PPE), trend analysis, and AI-driven clinical advice.
-- **District Administrator Dashboard:** District-wide performance matrix, stock correlation engine, Sanitary & Hygiene warning indicators, real-time alert feed, and Gemma AI facility advisory reports.
+- **Doctor Performance Hub:** Individual doctor dashboard showing patient review summaries, 5-domain performance breakdown, real-time patient queue attendance controls, response delay analytics, and AI-driven clinical advice.
+- **District Administrator Dashboard:** District-wide performance matrix across all 5 composite factors, stockout correlation engine, Sanitary & Hygiene warning indicators, queue delay alerts, facility trend direction (improving, stable, declining counts), and Gemma AI facility advisory reports.
