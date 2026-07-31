@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Building2, ShieldAlert, TrendingUp, TrendingDown, Sparkles, AlertTriangle, Search, CheckCircle2, RefreshCw, BarChart2, Package, Truck, Eye, Plus, X } from 'lucide-react';
+import { Building2, ShieldAlert, TrendingUp, TrendingDown, Minus, Sparkles, AlertTriangle, Search, CheckCircle2, RefreshCw, BarChart2, Package, Truck, Eye, Plus, X } from 'lucide-react';
 import { Hospital, Doctor, StockRecord, AlertItem, ResourceRedistributionPlan, LanguageCode } from '../types';
 import { TRANSLATIONS } from '../lib/i18n';
 import { StockoutCorrelationView } from './StockoutCorrelationView';
@@ -49,6 +49,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const totalFacilities = hospitals.length;
   const avgScore = Math.round(hospitals.reduce((s, h) => s + h.totalScore, 0) / (totalFacilities || 1));
   const improvingCount = hospitals.filter((h) => h.trendDirection === 'improving').length;
+  const stableCount = hospitals.filter((h) => h.trendDirection === 'stable').length;
   const decliningCount = hospitals.filter((h) => h.trendDirection === 'declining').length;
   const activeAlerts = alerts.filter((a) => !a.resolvedAt);
 
@@ -129,21 +130,27 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         </div>
 
         <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl shadow-sm space-y-1">
-          <span className="text-xs font-semibold text-slate-400">Improving vs Declining</span>
+          <span className="text-xs font-semibold text-slate-400">Facility Trends</span>
           <div className="flex items-center justify-between pt-1">
-            <div className="flex items-center space-x-3">
-              <span className="text-2xl font-bold text-emerald-400 flex items-center">
+            <div className="flex items-center space-x-2.5">
+              <span className="text-xl font-bold text-emerald-400 flex items-center" title="Improving Facilities">
                 <TrendingUp className="w-4 h-4 mr-1" />
                 {improvingCount}
               </span>
-              <span className="text-2xl font-bold text-rose-400 flex items-center">
+              <span className="text-xl font-bold text-slate-300 flex items-center" title="Stable Facilities">
+                <Minus className="w-4 h-4 mr-1" />
+                {stableCount}
+              </span>
+              <span className="text-xl font-bold text-rose-400 flex items-center" title="Declining Facilities">
                 <TrendingDown className="w-4 h-4 mr-1" />
                 {decliningCount}
               </span>
             </div>
             <span className="text-xs font-mono text-slate-400">30-day slope</span>
           </div>
-          <p className="text-[11px] text-slate-500">Early warning system active</p>
+          <p className="text-[11px] text-slate-500">
+            <span className="text-emerald-400 font-semibold">{improvingCount} Improving</span> • <span className="text-slate-300 font-semibold">{stableCount} Stable</span> • <span className="text-rose-400 font-semibold">{decliningCount} Declining</span>
+          </p>
         </div>
 
         <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl shadow-sm space-y-1">
@@ -152,7 +159,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             <span className="text-3xl font-extrabold text-rose-400">{activeAlerts.length}</span>
             <ShieldAlert className="w-6 h-6 text-rose-400 animate-pulse" />
           </div>
-          <p className="text-[11px] text-slate-500">Stockouts & attendance delays</p>
+          <p className="text-[11px] text-slate-500">Stockouts, hygiene & response delays</p>
         </div>
 
         <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl shadow-sm space-y-1">
@@ -234,7 +241,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
             <div>
               <h3 className="text-lg font-bold text-white">Facility Performance & Ranking Matrix</h3>
-              <p className="text-xs text-slate-400">Calculates composite score based on satisfaction, attendance, and medicine stock.</p>
+              <p className="text-xs text-slate-400">Calculates composite score based on satisfaction, sanitation, patient response speed, and medicine stock.</p>
             </div>
 
             <div className="relative">
@@ -260,7 +267,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   <th className="p-3 text-center">Satisfaction</th>
                   <th className="p-3 text-center">Sanitation</th>
                   <th className="p-3 text-center">Stock Score</th>
-                  <th className="p-3 text-center">Attendance</th>
+                  <th className="p-3 text-center">Patient Response</th>
                   <th className="p-3 text-center">Total Score</th>
                   <th className="p-3 text-center">Trend</th>
                   <th className="p-3 text-right">Actions</th>
@@ -298,7 +305,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       </span>
                     </td>
                     <td className="p-3 text-center font-semibold text-amber-400">{hosp.stockAvailabilityScore}%</td>
-                    <td className="p-3 text-center font-semibold text-teal-400">{hosp.attendanceScore}%</td>
+                    <td className="p-3 text-center font-semibold text-teal-400 font-mono">
+                      {hosp.patientResponseScore ?? 80}% <span className="text-[10px] text-slate-400 font-sans">({hosp.avgResponseTimeMins ?? 8}m)</span>
+                    </td>
                     <td className="p-3 text-center">
                       <span
                         className={`px-2.5 py-1 rounded-lg font-bold text-xs ${
@@ -473,8 +482,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 </p>
               </div>
               <div>
-                <span className="text-[10px] text-slate-400 uppercase font-semibold">Attendance</span>
-                <p className="text-xl font-bold text-teal-400">{selectedHospitalForModal.attendanceScore}%</p>
+                <span className="text-[10px] text-slate-400 uppercase font-semibold">Patient Response</span>
+                <p className="text-xl font-bold text-teal-400">{selectedHospitalForModal.patientResponseScore ?? 80}% <span className="text-xs text-slate-400 font-normal">({selectedHospitalForModal.avgResponseTimeMins ?? 8}m)</span></p>
               </div>
               <div>
                 <span className="text-[10px] text-slate-400 uppercase font-semibold">Stock Score</span>

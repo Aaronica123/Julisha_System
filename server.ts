@@ -6,7 +6,7 @@ import {
   INITIAL_HOSPITALS,
   INITIAL_DOCTORS,
   INITIAL_STOCKS,
-  INITIAL_ATTENDANCE,
+  INITIAL_APPOINTMENTS,
   INITIAL_ALERTS,
   INITIAL_FEEDBACKS,
   INITIAL_REDISTRIBUTION_PLANS,
@@ -15,7 +15,7 @@ import {
   Hospital,
   Doctor,
   StockRecord,
-  AttendanceRecord,
+  PatientAppointmentRecord,
   PatientFeedback,
   AlertItem,
   ResourceRedistributionPlan,
@@ -37,7 +37,7 @@ app.use(express.json());
 let hospitals: Hospital[] = [...INITIAL_HOSPITALS];
 let doctors: Doctor[] = [...INITIAL_DOCTORS];
 let stocks: StockRecord[] = [...INITIAL_STOCKS];
-let attendanceRecords: AttendanceRecord[] = [...INITIAL_ATTENDANCE];
+let appointments: PatientAppointmentRecord[] = [...INITIAL_APPOINTMENTS];
 let alerts: AlertItem[] = [...INITIAL_ALERTS];
 let feedbacks: PatientFeedback[] = [...INITIAL_FEEDBACKS];
 let redistributionPlans: ResourceRedistributionPlan[] = [...INITIAL_REDISTRIBUTION_PLANS];
@@ -68,12 +68,19 @@ function recalculateHospitalScores(hospitalId: string) {
     sanitaryHygieneScore = Math.round(hygieneAvg * 100 * 10) / 10;
   }
 
-  // 2. Attendance score (% of on-time attendance)
-  const hospitalAttendance = attendanceRecords.filter((a) => a.hospitalId === hospitalId);
-  let attendanceScore = 80;
-  if (hospitalAttendance.length > 0) {
-    const onTimeCount = hospitalAttendance.filter((a) => a.status === 'on_time').length;
-    attendanceScore = Math.round((onTimeCount / hospitalAttendance.length) * 100);
+  // 2. Patient Response & Queue Speed Score (% of prompt responses <= 10 mins delay)
+  const hospitalApts = appointments.filter((a) => a.hospitalId === hospitalId);
+  let patientResponseScore = hospital.patientResponseScore || 80;
+  let avgResponseTimeMins = hospital.avgResponseTimeMins || 8.0;
+
+  if (hospitalApts.length > 0) {
+    const respondedApts = hospitalApts.filter((a) => a.responseDelayMinutes !== undefined);
+    if (respondedApts.length > 0) {
+      const totalDelay = respondedApts.reduce((sum, a) => sum + (a.responseDelayMinutes || 0), 0);
+      avgResponseTimeMins = Math.round((totalDelay / respondedApts.length) * 10) / 10;
+      const promptCount = respondedApts.filter((a) => (a.responseDelayMinutes || 0) <= 10).length;
+      patientResponseScore = Math.round((promptCount / respondedApts.length) * 100);
+    }
   }
 
   // 3. Stock availability score
@@ -85,12 +92,12 @@ function recalculateHospitalScores(hospitalId: string) {
   }
 
   // Composite weighted score across ALL 5 facility factors:
-  // 30% satisfaction, 25% sanitary hygiene, 20% stock, 15% attendance, 10% volume efficiency
+  // 30% satisfaction, 25% sanitary hygiene, 20% stock, 15% patient response speed, 10% volume efficiency
   const composite = Math.round(
     (doctorSatisfactionScore * 0.30 +
       sanitaryHygieneScore * 0.25 +
       stockAvailabilityScore * 0.20 +
-      attendanceScore * 0.15 +
+      patientResponseScore * 0.15 +
       hospital.volumeEfficiencyScore * 0.10) *
       10
   ) / 10;
@@ -102,7 +109,8 @@ function recalculateHospitalScores(hospitalId: string) {
 
   hospital.doctorSatisfactionScore = doctorSatisfactionScore;
   hospital.sanitaryHygieneScore = sanitaryHygieneScore;
-  hospital.attendanceScore = attendanceScore;
+  hospital.patientResponseScore = patientResponseScore;
+  hospital.avgResponseTimeMins = avgResponseTimeMins;
   hospital.stockAvailabilityScore = stockAvailabilityScore;
 
   // Auto-flag hygiene violation alert if hygiene score is poor (< 60%)
@@ -116,6 +124,22 @@ function recalculateHospitalScores(hospitalId: string) {
         alertType: 'hygiene_violation',
         severity: 'critical',
         message: `SANITATION & HYGIENE WARNING: Facility score dropped to ${sanitaryHygieneScore}%. Unsanitary conditions or hazardous medical waste disposal reported by patients.`,
+        createdAt: new Date().toISOString(),
+      });
+    }
+  }
+
+  // Auto-flag response delay alert if queue response is poor (< 60% prompt or > 20 mins avg wait)
+  if (patientResponseScore < 60 || avgResponseTimeMins > 20) {
+    const existingDelayAlert = alerts.find((a) => a.hospitalId === hospitalId && a.alertType === 'response_delay' && !a.resolvedAt);
+    if (!existingDelayAlert) {
+      alerts.unshift({
+        id: `alt_${Date.now()}`,
+        hospitalId,
+        hospitalName: hospital.name,
+        alertType: 'response_delay',
+        severity: 'warning',
+        message: `PATIENT QUEUE DELAY WARNING: Average patient response time reached ${avgResponseTimeMins} mins. Queue promptness score dropped to ${patientResponseScore}%.`,
         createdAt: new Date().toISOString(),
       });
     }
@@ -267,71 +291,87 @@ app.get('/api/feedback/doctor/:doctor_id', (req, res) => {
   });
 });
 
-// Doctor Attendance Endpoints
-app.post('/api/attendance/clock-in', (req, res) => {
-  const { doctor_id, hospital_id, first_patient_contact_time } = req.body;
+// Patient Queue & Doctor Response Endpoints
+app.post('/api/appointments/respond', (req, res) => {
+  const { appointment_id, doctor_id, hospital_id, patient_name, scheduled_time, doctor_available_time, consultation_start_time } = req.body;
   const doc = doctors.find((d) => d.id === doctor_id);
-  const shiftStart = doc ? doc.shiftStartTime : '08:00';
+  const docHospId = hospital_id || doc?.hospitalId || 'hosp-1';
 
-  const contactTime = first_patient_contact_time ? new Date(first_patient_contact_time) : new Date();
-  const [startHour, startMin] = shiftStart.split(':').map(Number);
+  const now = new Date();
+  const consultTime = consultation_start_time ? new Date(consultation_start_time) : now;
+  const docReadyTime = doctor_available_time ? new Date(doctor_available_time) : new Date(now.getTime() - 5 * 60000);
 
-  const scheduledDate = new Date(contactTime);
-  scheduledDate.setHours(startHour, startMin, 0, 0);
+  // Response delay calculated between readiness baseline and consultation start
+  const delayMs = consultTime.getTime() - docReadyTime.getTime();
+  const responseDelayMinutes = Math.max(0, Math.floor(delayMs / (1000 * 60)));
 
-  const diffMs = contactTime.getTime() - scheduledDate.getTime();
-  const lateMinutes = Math.max(0, Math.floor(diffMs / (1000 * 60)));
-  const status = lateMinutes > 15 ? 'late' : 'on_time';
+  let status: 'prompt' | 'delayed' | 'severely_delayed' = 'prompt';
+  if (responseDelayMinutes > 20) {
+    status = 'severely_delayed';
+  } else if (responseDelayMinutes > 10) {
+    status = 'delayed';
+  }
 
-  const record: AttendanceRecord = {
-    id: `att_${Date.now()}`,
-    doctorId: doctor_id,
-    hospitalId: hospital_id || doc?.hospitalId || 'hosp-1',
-    firstPatientContactTime: contactTime.toISOString(),
-    shiftStartTime: shiftStart,
-    lateMinutes,
-    status,
-    createdAt: new Date().toISOString(),
-  };
+  let apt = appointments.find((a) => a.id === appointment_id);
+  if (apt) {
+    apt.doctorAvailableTime = docReadyTime.toISOString();
+    apt.consultationStartTime = consultTime.toISOString();
+    apt.responseDelayMinutes = responseDelayMinutes;
+    apt.status = status;
+  } else {
+    apt = {
+      id: `apt_${Date.now()}`,
+      doctorId: doctor_id,
+      hospitalId: docHospId,
+      patientName: patient_name || 'Walk-in Patient',
+      scheduledTime: scheduled_time || '09:30 AM',
+      patientArrivalTime: docReadyTime.toISOString(),
+      doctorAvailableTime: docReadyTime.toISOString(),
+      consultationStartTime: consultTime.toISOString(),
+      responseDelayMinutes,
+      status,
+      createdAt: now.toISOString(),
+    };
+    appointments.unshift(apt);
+  }
 
-  attendanceRecords.unshift(record);
-
-  // Trigger attendance warning alert if severely late
-  if (lateMinutes > 30 && doc) {
+  if (responseDelayMinutes > 20 && doc) {
     alerts.unshift({
       id: `alt_${Date.now()}`,
-      hospitalId: record.hospitalId,
+      hospitalId: docHospId,
       hospitalName: doc.hospitalName || 'Health Center',
-      alertType: 'attendance',
+      alertType: 'response_delay',
       severity: 'warning',
-      message: `ATTENDANCE ALERT: ${doc.name} recorded first patient contact ${lateMinutes} minutes late.`,
+      message: `RESPONSE DELAY ALERT: ${doc.name} took ${responseDelayMinutes} minutes to attend to patient ${apt.patientName}.`,
       createdAt: new Date().toISOString(),
     });
   }
 
-  if (record.hospitalId) {
-    recalculateHospitalScores(record.hospitalId);
-  }
+  recalculateHospitalScores(docHospId);
 
   res.json({
-    record_id: record.id,
+    appointment_id: apt.id,
     status,
-    late_minutes: lateMinutes,
-    first_patient_contact_time: record.firstPatientContactTime,
+    response_delay_minutes: responseDelayMinutes,
+    appointment: apt,
   });
 });
 
-app.get('/api/attendance/doctor/:doctor_id', (req, res) => {
+app.get('/api/appointments/doctor/:doctor_id', (req, res) => {
   const { doctor_id } = req.params;
-  const records = attendanceRecords.filter((a) => a.doctorId === doctor_id);
-  const onTimeCount = records.filter((r) => r.status === 'on_time').length;
-  const onTimePercentage = records.length > 0 ? Math.round((onTimeCount / records.length) * 100) : 100;
+  const docApts = appointments.filter((a) => a.doctorId === doctor_id);
+  const completed = docApts.filter((a) => a.responseDelayMinutes !== undefined);
+  const promptCount = completed.filter((a) => (a.responseDelayMinutes || 0) <= 10).length;
+  const responseScore = completed.length > 0 ? Math.round((promptCount / completed.length) * 100) : 90;
+  const totalDelay = completed.reduce((sum, a) => sum + (a.responseDelayMinutes || 0), 0);
+  const avgResponseTimeMins = completed.length > 0 ? Math.round((totalDelay / completed.length) * 10) / 10 : 5;
 
   res.json({
     doctor_id,
-    attendance_records: records,
-    on_time_percentage: onTimePercentage,
-    total_shifts: records.length,
+    appointments: docApts,
+    patient_response_score: responseScore,
+    avg_response_time_mins: avgResponseTimeMins,
+    total_appointments: docApts.length,
   });
 });
 
@@ -468,7 +508,7 @@ app.get('/api/performance/doctor/:doctor_id', (req, res) => {
   }
 
   const docFeedbacks = feedbacks.filter((f) => f.doctorId === doctor_id);
-  const docAttendance = attendanceRecords.filter((a) => a.doctorId === doctor_id);
+  const docApts = appointments.filter((a) => a.doctorId === doctor_id);
 
   let comm = 0.8,
     cond = 0.8,
@@ -496,8 +536,11 @@ app.get('/api/performance/doctor/:doctor_id', (req, res) => {
     weaknesses.push({ category: 'Patient Consultation Speed', severity: 'minor' as const, percentage: 15 });
   }
 
-  const onTimeCount = docAttendance.filter((a) => a.status === 'on_time').length;
-  const attendanceOnTimePct = docAttendance.length > 0 ? Math.round((onTimeCount / docAttendance.length) * 100) : 85;
+  const completed = docApts.filter((a) => a.responseDelayMinutes !== undefined);
+  const promptCount = completed.filter((a) => (a.responseDelayMinutes || 0) <= 10).length;
+  const patientResponseScore = completed.length > 0 ? Math.round((promptCount / completed.length) * 100) : 90;
+  const totalDelay = completed.reduce((sum, a) => sum + (a.responseDelayMinutes || 0), 0);
+  const avgResponseTimeMins = completed.length > 0 ? Math.round((totalDelay / completed.length) * 10) / 10 : 5.0;
 
   const result: DoctorPerformanceAnalytics = {
     doctorId: doc.id,
@@ -513,7 +556,8 @@ app.get('/api/performance/doctor/:doctor_id', (req, res) => {
     },
     trendDirection: overallScore >= 75 ? 'improving' : overallScore < 55 ? 'declining' : 'stable',
     weaknesses,
-    attendanceOnTimePct,
+    patientResponseScore,
+    avgResponseTimeMins,
     totalFeedbacks: docFeedbacks.length,
     historicalScores: [
       { date: '2026-07-01', score: overallScore - 4 },
@@ -542,7 +586,8 @@ app.get('/api/performance/hospital/:hospital_id', (req, res) => {
     components: {
       doctorSatisfaction: hosp.doctorSatisfactionScore,
       sanitaryHygiene: hosp.sanitaryHygieneScore,
-      attendance: hosp.attendanceScore,
+      patientResponse: hosp.patientResponseScore || 80,
+      avgResponseTimeMins: hosp.avgResponseTimeMins || 8,
       stockAvailability: hosp.stockAvailabilityScore,
       volumeEfficiency: hosp.volumeEfficiencyScore,
     },
@@ -751,7 +796,7 @@ app.get('/api/state/full', (req, res) => {
     hospitals,
     doctors,
     stocks,
-    attendanceRecords,
+    appointments,
     alerts,
     feedbacks,
     redistributionPlans,

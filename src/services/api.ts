@@ -2,7 +2,7 @@ import {
   Hospital,
   Doctor,
   StockRecord,
-  AttendanceRecord,
+  PatientAppointmentRecord,
   PatientFeedback,
   AlertItem,
   ResourceRedistributionPlan,
@@ -18,7 +18,7 @@ export const api = {
       hospitals: Hospital[];
       doctors: Doctor[];
       stocks: StockRecord[];
-      attendanceRecords: AttendanceRecord[];
+      appointments: PatientAppointmentRecord[];
       alerts: AlertItem[];
       feedbacks: PatientFeedback[];
       redistributionPlans: ResourceRedistributionPlan[];
@@ -47,9 +47,17 @@ export const api = {
     return res.json();
   },
 
-  // Doctor Attendance Clock-In
-  async clockInAttendance(data: { doctor_id: string; hospital_id: string; first_patient_contact_time?: string }) {
-    const res = await fetch('/api/attendance/clock-in', {
+  // Patient Queue & Response
+  async recordPatientResponse(data: {
+    appointment_id?: string;
+    doctor_id: string;
+    hospital_id: string;
+    patient_name?: string;
+    scheduled_time?: string;
+    doctor_available_time?: string;
+    consultation_start_time?: string;
+  }) {
+    const res = await fetch('/api/appointments/respond', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),

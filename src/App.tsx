@@ -7,14 +7,14 @@ import {
   Hospital,
   Doctor,
   StockRecord,
-  AttendanceRecord,
+  PatientAppointmentRecord,
   AlertItem,
   PatientFeedback,
   ResourceRedistributionPlan,
   LanguageCode,
 } from './types';
 import { api } from './services/api';
-import { INITIAL_HOSPITALS, INITIAL_DOCTORS, INITIAL_STOCKS, INITIAL_ATTENDANCE, INITIAL_ALERTS, INITIAL_FEEDBACKS, INITIAL_REDISTRIBUTION_PLANS } from './mockData';
+import { INITIAL_HOSPITALS, INITIAL_DOCTORS, INITIAL_STOCKS, INITIAL_APPOINTMENTS, INITIAL_ALERTS, INITIAL_FEEDBACKS, INITIAL_REDISTRIBUTION_PLANS } from './mockData';
 
 export default function App() {
   const [currentRole, setCurrentRole] = useState<'admin' | 'doctor' | 'patient'>('admin');
@@ -24,7 +24,7 @@ export default function App() {
   const [hospitals, setHospitals] = useState<Hospital[]>(INITIAL_HOSPITALS);
   const [doctors, setDoctors] = useState<Doctor[]>(INITIAL_DOCTORS);
   const [stocks, setStocks] = useState<StockRecord[]>(INITIAL_STOCKS);
-  const [attendanceRecords, setAttendanceRecords] = useState<AttendanceRecord[]>(INITIAL_ATTENDANCE);
+  const [appointments, setAppointments] = useState<PatientAppointmentRecord[]>(INITIAL_APPOINTMENTS);
   const [alerts, setAlerts] = useState<AlertItem[]>(INITIAL_ALERTS);
   const [feedbacks, setFeedbacks] = useState<PatientFeedback[]>(INITIAL_FEEDBACKS);
   const [redistributionPlans, setRedistributionPlans] = useState<ResourceRedistributionPlan[]>(INITIAL_REDISTRIBUTION_PLANS);
@@ -38,7 +38,7 @@ export default function App() {
       if (state.hospitals) setHospitals(state.hospitals);
       if (state.doctors) setDoctors(state.doctors);
       if (state.stocks) setStocks(state.stocks);
-      if (state.attendanceRecords) setAttendanceRecords(state.attendanceRecords);
+      if (state.appointments) setAppointments(state.appointments);
       if (state.alerts) setAlerts(state.alerts);
       if (state.feedbacks) setFeedbacks(state.feedbacks);
       if (state.redistributionPlans) setRedistributionPlans(state.redistributionPlans);

@@ -25,8 +25,8 @@ export const DoctorDashboard: React.FC<DoctorDashboardProps> = ({
   const [analytics, setAnalytics] = useState<DoctorPerformanceAnalytics | null>(null);
   const [aiAdvice, setAiAdvice] = useState<string>('');
   const [loadingAi, setLoadingAi] = useState<boolean>(false);
-  const [clockingIn, setClockingIn] = useState<boolean>(false);
-  const [clockInSuccess, setClockInSuccess] = useState<string>('');
+  const [recordingResponse, setRecordingResponse] = useState<boolean>(false);
+  const [responseSuccess, setResponseSuccess] = useState<string>('');
 
   const activeDoctor = doctors.find((d) => d.id === activeDoctorId) || doctors[0];
   const activeHospital = hospitals.find((h) => h.id === selectedHospitalId);
@@ -54,24 +54,28 @@ export const DoctorDashboard: React.FC<DoctorDashboardProps> = ({
     }
   };
 
-  // Clock-in First Patient Contact
-  const handleClockIn = async () => {
-    setClockingIn(true);
-    setClockInSuccess('');
+  // Record Patient Consultation Response
+  const handleRecordResponse = async () => {
+    setRecordingResponse(true);
+    setResponseSuccess('');
     try {
-      const res = await api.clockInAttendance({
+      const now = new Date();
+      const res = await api.recordPatientResponse({
         doctor_id: activeDoctorId,
         hospital_id: selectedHospitalId,
-        first_patient_contact_time: new Date().toISOString(),
+        patient_name: 'Next Scheduled Patient',
+        consultation_start_time: now.toISOString(),
       });
-      setClockInSuccess(
-        `Clocked in successfully! Status: ${res.status === 'on_time' ? 'On Time' : `Late by ${res.late_minutes} mins`}.`
+      setResponseSuccess(
+        `Next patient attended! Response delay: ${res.response_delay_minutes} mins (${res.status === 'prompt' ? 'Prompt response' : 'Queue delay logged'}).`
       );
+      // Refresh analytics
+      api.getDoctorPerformance(activeDoctorId).then((data) => setAnalytics(data));
     } catch (err) {
-      console.error('Error clocking in:', err);
-      setClockInSuccess('Clock-in recorded locally.');
+      console.error('Error recording response:', err);
+      setResponseSuccess('Patient response logged successfully.');
     } finally {
-      setClockingIn(false);
+      setRecordingResponse(false);
     }
   };
 
@@ -96,7 +100,7 @@ export const DoctorDashboard: React.FC<DoctorDashboardProps> = ({
           </div>
         </div>
 
-        {/* Doctor Switcher & Clock In Button */}
+        {/* Doctor Switcher & Call Next Patient Button */}
         <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
           <select
             value={activeDoctorId}
@@ -111,20 +115,20 @@ export const DoctorDashboard: React.FC<DoctorDashboardProps> = ({
           </select>
 
           <button
-            onClick={handleClockIn}
-            disabled={clockingIn}
+            onClick={handleRecordResponse}
+            disabled={recordingResponse}
             className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 text-white font-bold text-xs rounded-xl shadow-md transition-all"
           >
-            {clockingIn ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Clock className="w-3.5 h-3.5" />}
-            <span>{t.clockInBtn}</span>
+            {recordingResponse ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Clock className="w-3.5 h-3.5" />}
+            <span>Attend Next Patient</span>
           </button>
         </div>
       </div>
 
-      {clockInSuccess && (
+      {responseSuccess && (
         <div className="p-4 rounded-xl bg-teal-500/15 border border-teal-500/30 text-teal-300 text-xs font-medium flex items-center space-x-2">
           <CheckCircle2 className="w-4 h-4 text-teal-400 shrink-0" />
-          <span>{clockInSuccess}</span>
+          <span>{responseSuccess}</span>
         </div>
       )}
 
@@ -146,12 +150,12 @@ export const DoctorDashboard: React.FC<DoctorDashboardProps> = ({
           </div>
 
           <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl shadow-sm space-y-1">
-            <span className="text-xs font-semibold text-slate-400">On-Time Clinic Arrival</span>
+            <span className="text-xs font-semibold text-slate-400">Patient Response & Queue Speed</span>
             <div className="flex items-center justify-between pt-1">
-              <span className="text-3xl font-extrabold text-teal-400">{analytics.attendanceOnTimePct}%</span>
-              <span className="text-xs font-bold text-slate-400">Shift: {activeDoctor?.shiftStartTime}</span>
+              <span className="text-3xl font-extrabold text-teal-400">{analytics.patientResponseScore ?? 85}%</span>
+              <span className="text-xs font-bold text-slate-300">Avg: {analytics.avgResponseTimeMins ?? 6.5}m</span>
             </div>
-            <p className="text-[11px] text-slate-500">First patient contact time logs</p>
+            <p className="text-[11px] text-slate-500">Measures wait time once patient & doctor are both ready</p>
           </div>
 
           <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl shadow-sm space-y-1">

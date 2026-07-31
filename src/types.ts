@@ -15,7 +15,8 @@ export interface Hospital {
   };
   totalScore: number;
   doctorSatisfactionScore: number;
-  attendanceScore: number;
+  patientResponseScore: number; // Replaces attendanceScore: Patient queue response & promptness score (0-100%)
+  avgResponseTimeMins?: number; // Avg time to respond once both patient & doctor are ready
   stockAvailabilityScore: number;
   sanitaryHygieneScore: number;
   volumeEfficiencyScore: number;
@@ -56,14 +57,17 @@ export interface PatientFeedback {
   offlineSynced?: boolean;
 }
 
-export interface AttendanceRecord {
+export interface PatientAppointmentRecord {
   id: string;
   doctorId: string;
   hospitalId: string;
-  firstPatientContactTime: string; // ISO string
-  shiftStartTime: string; // "08:00"
-  lateMinutes: number;
-  status: 'on_time' | 'late' | 'absent';
+  patientName: string;
+  scheduledTime: string; // e.g. "09:30" or ISO string
+  patientArrivalTime: string; // ISO string when patient checked in
+  doctorAvailableTime: string; // ISO string when doctor marked free
+  consultationStartTime?: string; // ISO string when doctor attended patient
+  responseDelayMinutes?: number; // Minutes waited after readiness baseline
+  status: 'scheduled' | 'in_progress' | 'completed' | 'prompt' | 'delayed' | 'severely_delayed';
   createdAt: string;
 }
 
@@ -101,7 +105,7 @@ export interface AIRecommendation {
   targetType: 'doctor' | 'hospital';
   recommendationType: 'individual' | 'systemic';
   content: string;
-  category: 'performance' | 'stock' | 'attendance' | 'communication';
+  category: 'performance' | 'stock' | 'response_time' | 'communication';
   generatedAt: string;
   implemented: boolean;
   effectivenessScore?: number;
@@ -111,7 +115,7 @@ export interface AlertItem {
   id: string;
   hospitalId: string;
   hospitalName: string;
-  alertType: 'stockout' | 'declining_performance' | 'attendance' | 'hygiene_violation';
+  alertType: 'stockout' | 'declining_performance' | 'response_delay' | 'hygiene_violation';
   severity: 'critical' | 'warning' | 'info';
   message: string;
   acknowledgedBy?: string;
@@ -133,7 +137,8 @@ export interface DoctorPerformanceAnalytics {
   };
   trendDirection: TrendDirection;
   weaknesses: { category: string; severity: 'critical' | 'warning' | 'minor'; percentage: number }[];
-  attendanceOnTimePct: number;
+  patientResponseScore: number; // Replaces attendanceOnTimePct
+  avgResponseTimeMins: number; // Average minutes waited once patient & doctor were ready
   totalFeedbacks: number;
   historicalScores: { date: string; score: number }[];
 }

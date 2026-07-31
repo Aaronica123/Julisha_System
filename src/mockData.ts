@@ -1,4 +1,4 @@
-import { Hospital, Doctor, StockRecord, AttendanceRecord, PatientFeedback, AlertItem, ResourceRedistributionPlan } from './types';
+import { Hospital, Doctor, StockRecord, PatientAppointmentRecord, PatientFeedback, AlertItem, ResourceRedistributionPlan } from './types';
 
 export const INITIAL_HOSPITALS: Hospital[] = [
   {
@@ -10,7 +10,8 @@ export const INITIAL_HOSPITALS: Hospital[] = [
     contactInfo: { phone: '+1 555-0192', email: 'sunrise.chc@health.gov', address: '102 Civil Lines, Central' },
     totalScore: 88.5,
     doctorSatisfactionScore: 91.0,
-    attendanceScore: 94.0,
+    patientResponseScore: 94.0,
+    avgResponseTimeMins: 4.2,
     stockAvailabilityScore: 82.0,
     sanitaryHygieneScore: 92.0,
     volumeEfficiencyScore: 87.0,
@@ -27,7 +28,8 @@ export const INITIAL_HOSPITALS: Hospital[] = [
     contactInfo: { phone: '+1 555-0144', email: 'greenvalley.phc@health.gov', address: 'Village Green, Ward 4' },
     totalScore: 48.2,
     doctorSatisfactionScore: 52.0,
-    attendanceScore: 61.0,
+    patientResponseScore: 52.0,
+    avgResponseTimeMins: 22.5,
     stockAvailabilityScore: 35.0,
     sanitaryHygieneScore: 42.0,
     volumeEfficiencyScore: 45.0,
@@ -45,7 +47,8 @@ export const INITIAL_HOSPITALS: Hospital[] = [
     contactInfo: { phone: '+1 555-0823', email: 'riverdale.phc@health.gov', address: '44 River Road, North' },
     totalScore: 76.4,
     doctorSatisfactionScore: 80.0,
-    attendanceScore: 85.0,
+    patientResponseScore: 85.0,
+    avgResponseTimeMins: 7.8,
     stockAvailabilityScore: 68.0,
     sanitaryHygieneScore: 78.0,
     volumeEfficiencyScore: 72.0,
@@ -62,7 +65,8 @@ export const INITIAL_HOSPITALS: Hospital[] = [
     contactInfo: { phone: '+1 555-0911', email: 'highland.chc@health.gov', address: 'Highland Bypass, North' },
     totalScore: 59.8,
     doctorSatisfactionScore: 64.0,
-    attendanceScore: 70.0,
+    patientResponseScore: 65.0,
+    avgResponseTimeMins: 16.0,
     stockAvailabilityScore: 48.0,
     sanitaryHygieneScore: 54.0,
     volumeEfficiencyScore: 57.0,
@@ -80,7 +84,8 @@ export const INITIAL_HOSPITALS: Hospital[] = [
     contactInfo: { phone: '+1 555-0377', email: 'metromodel.phc@health.gov', address: 'Metro Extension, Sector 9' },
     totalScore: 92.4,
     doctorSatisfactionScore: 94.0,
-    attendanceScore: 96.0,
+    patientResponseScore: 96.0,
+    avgResponseTimeMins: 3.5,
     stockAvailabilityScore: 90.0,
     sanitaryHygieneScore: 95.0,
     volumeEfficiencyScore: 89.5,
@@ -204,12 +209,12 @@ export const INITIAL_STOCKS: StockRecord[] = [
   { id: 'stk-501', hospitalId: 'hosp-5', medicineName: 'Amoxicillin 500mg', category: 'Antibiotics', currentQuantity: 500, thresholdQuantity: 100, available: true, severity: 0, date: '2026-07-30', createdAt: '2026-07-30T08:00:00Z' }
 ];
 
-export const INITIAL_ATTENDANCE: AttendanceRecord[] = [
-  { id: 'att-1', doctorId: 'doc-101', hospitalId: 'hosp-1', firstPatientContactTime: '2026-07-30T08:05:00Z', shiftStartTime: '08:00', lateMinutes: 5, status: 'on_time', createdAt: '2026-07-30T08:05:00Z' },
-  { id: 'att-2', doctorId: 'doc-102', hospitalId: 'hosp-1', firstPatientContactTime: '2026-07-30T08:32:00Z', shiftStartTime: '08:30', lateMinutes: 2, status: 'on_time', createdAt: '2026-07-30T08:32:00Z' },
-  { id: 'att-3', doctorId: 'doc-201', hospitalId: 'hosp-2', firstPatientContactTime: '2026-07-30T08:48:00Z', shiftStartTime: '08:00', lateMinutes: 48, status: 'late', createdAt: '2026-07-30T08:48:00Z' },
-  { id: 'att-4', doctorId: 'doc-202', hospitalId: 'hosp-2', firstPatientContactTime: '2026-07-30T09:35:00Z', shiftStartTime: '09:00', lateMinutes: 35, status: 'late', createdAt: '2026-07-30T09:35:00Z' },
-  { id: 'att-5', doctorId: 'doc-501', hospitalId: 'hosp-5', firstPatientContactTime: '2026-07-30T07:58:00Z', shiftStartTime: '08:00', lateMinutes: 0, status: 'on_time', createdAt: '2026-07-30T07:58:00Z' }
+export const INITIAL_APPOINTMENTS: PatientAppointmentRecord[] = [
+  { id: 'apt-1', doctorId: 'doc-101', hospitalId: 'hosp-1', patientName: 'Aarav Kumar', scheduledTime: '08:30 AM', patientArrivalTime: '2026-07-30T08:25:00Z', doctorAvailableTime: '2026-07-30T08:28:00Z', consultationStartTime: '2026-07-30T08:31:00Z', responseDelayMinutes: 3, status: 'prompt', createdAt: '2026-07-30T08:31:00Z' },
+  { id: 'apt-2', doctorId: 'doc-102', hospitalId: 'hosp-1', patientName: 'Meera Patel', scheduledTime: '09:00 AM', patientArrivalTime: '2026-07-30T08:58:00Z', doctorAvailableTime: '2026-07-30T09:00:00Z', consultationStartTime: '2026-07-30T09:04:00Z', responseDelayMinutes: 4, status: 'prompt', createdAt: '2026-07-30T09:04:00Z' },
+  { id: 'apt-3', doctorId: 'doc-201', hospitalId: 'hosp-2', patientName: 'Sita Devi', scheduledTime: '09:30 AM', patientArrivalTime: '2026-07-30T09:20:00Z', doctorAvailableTime: '2026-07-30T09:42:00Z', consultationStartTime: '2026-07-30T10:05:00Z', responseDelayMinutes: 23, status: 'delayed', createdAt: '2026-07-30T10:05:00Z' },
+  { id: 'apt-4', doctorId: 'doc-202', hospitalId: 'hosp-2', patientName: 'Ramesh Singh', scheduledTime: '10:00 AM', patientArrivalTime: '2026-07-30T09:55:00Z', doctorAvailableTime: '2026-07-30T10:15:00Z', consultationStartTime: '2026-07-30T10:48:00Z', responseDelayMinutes: 33, status: 'severely_delayed', createdAt: '2026-07-30T10:48:00Z' },
+  { id: 'apt-5', doctorId: 'doc-501', hospitalId: 'hosp-5', patientName: 'Fatima Ali', scheduledTime: '08:00 AM', patientArrivalTime: '2026-07-30T07:55:00Z', doctorAvailableTime: '2026-07-30T07:58:00Z', consultationStartTime: '2026-07-30T08:00:00Z', responseDelayMinutes: 2, status: 'prompt', createdAt: '2026-07-30T08:00:00Z' }
 ];
 
 export const INITIAL_ALERTS: AlertItem[] = [
@@ -219,7 +224,7 @@ export const INITIAL_ALERTS: AlertItem[] = [
     hospitalName: 'Green Valley Primary Health Center (PHC)',
     alertType: 'declining_performance',
     severity: 'critical',
-    message: 'CRITICAL FACILITY DECLINE: Total performance dropped by 14.8% over the past 30 days due to acute medicine stockouts and doctor arrival delays.',
+    message: 'CRITICAL FACILITY DECLINE: Total performance dropped by 14.8% over the past 30 days due to acute medicine stockouts and patient queue response delays.',
     createdAt: '2026-07-30T07:30:00Z'
   },
   {
@@ -253,9 +258,9 @@ export const INITIAL_ALERTS: AlertItem[] = [
     id: 'alt-104',
     hospitalId: 'hosp-2',
     hospitalName: 'Green Valley Primary Health Center (PHC)',
-    alertType: 'attendance',
+    alertType: 'response_delay',
     severity: 'warning',
-    message: 'ATTENDANCE ALERT: Dr. Vikram Patel registered first patient contact 48 minutes past scheduled shift start time.',
+    message: 'PATIENT RESPONSE DELAY ALERT: Average queue response time reached 22.5 minutes after patient check-in at Green Valley PHC.',
     createdAt: '2026-07-30T08:50:00Z'
   }
 ];
