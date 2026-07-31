@@ -30,6 +30,8 @@ export const PatientApp: React.FC<PatientAppProps> = ({
   const [conduct, setConduct] = useState<number>(5);
   const [interactiveness, setInteractiveness] = useState<number>(4);
   const [dressCode, setDressCode] = useState<number>(5);
+  const [doctorHygiene, setDoctorHygiene] = useState<number>(5);
+  const [facilityHygiene, setFacilityHygiene] = useState<number>(5);
   const [comments, setComments] = useState<string>('');
 
   // Biometric Authentication State
@@ -75,6 +77,8 @@ export const PatientApp: React.FC<PatientAppProps> = ({
       conduct: conduct / 5,
       user_interactiveness: interactiveness / 5,
       dress_code: dressCode / 5,
+      doctor_hygiene: doctorHygiene / 5,
+      facility_hygiene: facilityHygiene / 5,
       comments,
       language,
     };
@@ -90,6 +94,8 @@ export const PatientApp: React.FC<PatientAppProps> = ({
         conduct: conduct / 5,
         userInteractiveness: interactiveness / 5,
         dressCode: dressCode / 5,
+        doctorHygiene: doctorHygiene / 5,
+        facilityHygiene: facilityHygiene / 5,
         comments,
         createdAt: new Date().toISOString(),
         offlineSynced: false,
@@ -145,6 +151,8 @@ export const PatientApp: React.FC<PatientAppProps> = ({
     setConduct(5);
     setInteractiveness(4);
     setDressCode(5);
+    setDoctorHygiene(5);
+    setFacilityHygiene(5);
   };
 
   const renderRatingBar = (label: string, value: number, onChange: (val: number) => void) => {
@@ -341,6 +349,8 @@ export const PatientApp: React.FC<PatientAppProps> = ({
             {renderRatingBar(t.doctorConduct, conduct, setConduct)}
             {renderRatingBar(t.interactiveness, interactiveness, setInteractiveness)}
             {renderRatingBar(t.dressCode, dressCode, setDressCode)}
+            {renderRatingBar(t.doctorHygiene || 'Doctor Personal Hygiene & Gloves', doctorHygiene, setDoctorHygiene)}
+            {renderRatingBar(t.facilityHygiene || 'Hospital Sanitation & Waste Disposal', facilityHygiene, setFacilityHygiene)}
           </div>
 
           {/* Optional Text Comments */}

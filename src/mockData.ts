@@ -12,6 +12,7 @@ export const INITIAL_HOSPITALS: Hospital[] = [
     doctorSatisfactionScore: 91.0,
     attendanceScore: 94.0,
     stockAvailabilityScore: 82.0,
+    sanitaryHygieneScore: 92.0,
     volumeEfficiencyScore: 87.0,
     trendDirection: 'improving',
     createdAt: '2025-01-10T08:00:00Z',
@@ -28,6 +29,7 @@ export const INITIAL_HOSPITALS: Hospital[] = [
     doctorSatisfactionScore: 52.0,
     attendanceScore: 61.0,
     stockAvailabilityScore: 35.0,
+    sanitaryHygieneScore: 42.0,
     volumeEfficiencyScore: 45.0,
     trendDirection: 'declining',
     declinePercentage: 14.8,
@@ -45,6 +47,7 @@ export const INITIAL_HOSPITALS: Hospital[] = [
     doctorSatisfactionScore: 80.0,
     attendanceScore: 85.0,
     stockAvailabilityScore: 68.0,
+    sanitaryHygieneScore: 78.0,
     volumeEfficiencyScore: 72.0,
     trendDirection: 'stable',
     createdAt: '2025-02-01T08:00:00Z',
@@ -61,6 +64,7 @@ export const INITIAL_HOSPITALS: Hospital[] = [
     doctorSatisfactionScore: 64.0,
     attendanceScore: 70.0,
     stockAvailabilityScore: 48.0,
+    sanitaryHygieneScore: 54.0,
     volumeEfficiencyScore: 57.0,
     trendDirection: 'declining',
     declinePercentage: 11.2,
@@ -78,6 +82,7 @@ export const INITIAL_HOSPITALS: Hospital[] = [
     doctorSatisfactionScore: 94.0,
     attendanceScore: 96.0,
     stockAvailabilityScore: 90.0,
+    sanitaryHygieneScore: 95.0,
     volumeEfficiencyScore: 89.5,
     trendDirection: 'improving',
     createdAt: '2025-01-05T08:00:00Z',
@@ -218,6 +223,15 @@ export const INITIAL_ALERTS: AlertItem[] = [
     createdAt: '2026-07-30T07:30:00Z'
   },
   {
+    id: 'alt-105',
+    hospitalId: 'hosp-2',
+    hospitalName: 'Green Valley Primary Health Center (PHC)',
+    alertType: 'hygiene_violation',
+    severity: 'critical',
+    message: 'SANITATION & HYGIENE ALERT: Facility scored 42% on sanitation & medical waste disposal. Patients flagged overflowed waste bins and unsterilized clinical desks.',
+    createdAt: '2026-07-30T07:45:00Z'
+  },
+  {
     id: 'alt-102',
     hospitalId: 'hosp-2',
     hospitalName: 'Green Valley Primary Health Center (PHC)',
@@ -295,6 +309,8 @@ export const INITIAL_FEEDBACKS: PatientFeedback[] = [
     conduct: 0.90,
     userInteractiveness: 0.92,
     dressCode: 0.98,
+    doctorHygiene: 0.95,
+    facilityHygiene: 0.90,
     comments: 'Dr. Sharma explained the prescription clearly in simple terms and listened to my symptoms patiently.',
     createdAt: '2026-07-29T10:15:00Z',
     language: 'en'
@@ -308,7 +324,9 @@ export const INITIAL_FEEDBACKS: PatientFeedback[] = [
     conduct: 0.50,
     userInteractiveness: 0.45,
     dressCode: 0.70,
-    comments: 'Doctor arrived late and prescribed medicine that was not available at the pharmacy desk.',
+    doctorHygiene: 0.40,
+    facilityHygiene: 0.35,
+    comments: 'Doctor arrived late, did not wear fresh gloves, and the waste bin in consultation room was overflowing.',
     createdAt: '2026-07-30T09:10:00Z',
     language: 'en'
   },
@@ -321,7 +339,9 @@ export const INITIAL_FEEDBACKS: PatientFeedback[] = [
     conduct: 0.40,
     userInteractiveness: 0.30,
     dressCode: 0.65,
-    comments: 'Rushed consultation. Essential fever medicines were out of stock.',
+    doctorHygiene: 0.50,
+    facilityHygiene: 0.30,
+    comments: 'Rushed consultation. Essential fever medicines were out of stock and waiting area was unhygienic.',
     createdAt: '2026-07-29T11:40:00Z',
     language: 'hi'
   },
@@ -334,7 +354,9 @@ export const INITIAL_FEEDBACKS: PatientFeedback[] = [
     conduct: 0.98,
     userInteractiveness: 0.96,
     dressCode: 1.0,
-    comments: 'Excellent service! Very respectful doctor and all medicines were handed over smoothly.',
+    doctorHygiene: 0.98,
+    facilityHygiene: 0.96,
+    comments: 'Excellent service! Very respectful doctor, spotless clinic environment, and all medicines were handed over smoothly.',
     createdAt: '2026-07-30T08:30:00Z',
     language: 'sw'
   }

@@ -231,6 +231,16 @@ export const DoctorDashboard: React.FC<DoctorDashboardProps> = ({
                   <div className="h-full bg-indigo-500 rounded-full" style={{ width: `${analytics.categoryScores.dressCode * 100}%` }} />
                 </div>
               </div>
+
+              <div>
+                <div className="flex justify-between text-xs font-semibold text-slate-300 mb-1">
+                  <span>{t.doctorHygiene || 'Doctor Personal Hygiene & PPE'}</span>
+                  <span className="text-emerald-400">{Math.round((analytics.categoryScores.doctorHygiene || 0.8) * 100)}%</span>
+                </div>
+                <div className="w-full h-2 rounded-full bg-slate-800 overflow-hidden">
+                  <div className="h-full bg-emerald-400 rounded-full" style={{ width: `${(analytics.categoryScores.doctorHygiene || 0.8) * 100}%` }} />
+                </div>
+              </div>
             </div>
           )}
 

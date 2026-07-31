@@ -34,6 +34,8 @@ export const api = {
     conduct: number;
     user_interactiveness: number;
     dress_code: number;
+    doctor_hygiene?: number;
+    facility_hygiene?: number;
     comments?: string;
     language?: string;
   }) {

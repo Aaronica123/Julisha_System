@@ -50,13 +50,22 @@ function recalculateHospitalScores(hospitalId: string) {
   // 1. Doctor satisfaction score (average of doctor feedbacks)
   const hospitalFeedbacks = feedbacks.filter((f) => f.hospitalId === hospitalId);
   let doctorSatisfactionScore = 75;
+  let sanitaryHygieneScore = hospital.sanitaryHygieneScore || 80;
+
   if (hospitalFeedbacks.length > 0) {
     const totalAvg =
       hospitalFeedbacks.reduce((sum, f) => {
-        const itemAvg = (f.communicationClarity + f.conduct + f.userInteractiveness + f.dressCode) / 4;
+        const itemAvg = (f.communicationClarity + f.conduct + f.userInteractiveness + f.dressCode + (f.doctorHygiene || 0.8)) / 5;
         return sum + itemAvg;
       }, 0) / hospitalFeedbacks.length;
     doctorSatisfactionScore = Math.round(totalAvg * 100 * 10) / 10;
+
+    const hygieneAvg =
+      hospitalFeedbacks.reduce((sum, f) => {
+        const hVal = ( (f.facilityHygiene ?? 0.8) + (f.doctorHygiene ?? 0.8) ) / 2;
+        return sum + hVal;
+      }, 0) / hospitalFeedbacks.length;
+    sanitaryHygieneScore = Math.round(hygieneAvg * 100 * 10) / 10;
   }
 
   // 2. Attendance score (% of on-time attendance)
@@ -75,22 +84,40 @@ function recalculateHospitalScores(hospitalId: string) {
     stockAvailabilityScore = Math.round((availableCount / hospitalStocks.length) * 100);
   }
 
-  // Composite weighted score: 40% satisfaction, 20% attendance, 20% stock, 20% volume
+  // Composite weighted score: 30% satisfaction, 25% sanitary hygiene, 20% stock, 15% attendance, 10% volume
   const composite = Math.round(
-    (doctorSatisfactionScore * 0.40 +
-      attendanceScore * 0.20 +
+    (doctorSatisfactionScore * 0.30 +
+      sanitaryHygieneScore * 0.25 +
       stockAvailabilityScore * 0.20 +
-      hospital.volumeEfficiencyScore * 0.20) *
+      attendanceScore * 0.15 +
+      hospital.volumeEfficiencyScore * 0.10) *
       10
   ) / 10;
 
   hospital.doctorSatisfactionScore = doctorSatisfactionScore;
+  hospital.sanitaryHygieneScore = sanitaryHygieneScore;
   hospital.attendanceScore = attendanceScore;
   hospital.stockAvailabilityScore = stockAvailabilityScore;
 
-  if (composite < hospital.totalScore - 3) {
+  // Auto-flag hygiene violation alert if hygiene score is poor (< 60%)
+  if (sanitaryHygieneScore < 60) {
+    const existingHygieneAlert = alerts.find((a) => a.hospitalId === hospitalId && a.alertType === 'hygiene_violation' && !a.resolvedAt);
+    if (!existingHygieneAlert) {
+      alerts.unshift({
+        id: `alt_${Date.now()}`,
+        hospitalId,
+        hospitalName: hospital.name,
+        alertType: 'hygiene_violation',
+        severity: 'critical',
+        message: `SANITATION & HYGIENE WARNING: Facility score dropped to ${sanitaryHygieneScore}%. Unsanitary conditions or hazardous medical waste disposal reported by patients.`,
+        createdAt: new Date().toISOString(),
+      });
+    }
+  }
+
+  if (composite < hospital.totalScore - 3 || sanitaryHygieneScore < 55) {
     hospital.trendDirection = 'declining';
-    hospital.declinePercentage = Math.round(((hospital.totalScore - composite) / hospital.totalScore) * 100 * 10) / 10;
+    hospital.declinePercentage = Math.round(((hospital.totalScore - composite) / (hospital.totalScore || 100)) * 100 * 10) / 10 || 12.5;
   } else if (composite > hospital.totalScore + 3) {
     hospital.trendDirection = 'improving';
     hospital.declinePercentage = 0;
@@ -140,6 +167,8 @@ app.post('/api/feedback/submit', (req, res) => {
     conduct,
     user_interactiveness,
     dress_code,
+    doctor_hygiene,
+    facility_hygiene,
     comments,
     language,
   } = req.body;
@@ -153,6 +182,8 @@ app.post('/api/feedback/submit', (req, res) => {
     conduct: Number(conduct),
     userInteractiveness: Number(user_interactiveness),
     dressCode: Number(dress_code),
+    doctorHygiene: doctor_hygiene !== undefined ? Number(doctor_hygiene) : 0.8,
+    facilityHygiene: facility_hygiene !== undefined ? Number(facility_hygiene) : 0.8,
     comments: comments || '',
     createdAt: new Date().toISOString(),
     language: language || 'en',
@@ -167,7 +198,7 @@ app.post('/api/feedback/submit', (req, res) => {
     const docFeedbacks = feedbacks.filter((f) => f.doctorId === doctor_id);
     const avgRating =
       docFeedbacks.reduce((sum, f) => {
-        const itemAvg = (f.communicationClarity + f.conduct + f.userInteractiveness + f.dressCode) / 4;
+        const itemAvg = (f.communicationClarity + f.conduct + f.userInteractiveness + f.dressCode + (f.doctorHygiene || 0.8)) / 5;
         return sum + itemAvg * 5; // scaled 1 to 5
       }, 0) / docFeedbacks.length;
 
@@ -194,7 +225,7 @@ app.get('/api/feedback/doctor/:doctor_id', (req, res) => {
   if (docFeedbacks.length === 0) {
     return res.json({
       doctor_id,
-      metrics: { communication: 0.8, conduct: 0.8, interactiveness: 0.8, dressCode: 0.8 },
+      metrics: { communication: 0.8, conduct: 0.8, interactiveness: 0.8, dressCode: 0.8, doctorHygiene: 0.8 },
       trends: 'stable',
       feedback_count: 0,
       comments: [],
@@ -205,6 +236,7 @@ app.get('/api/feedback/doctor/:doctor_id', (req, res) => {
   const condAvg = docFeedbacks.reduce((s, f) => s + f.conduct, 0) / docFeedbacks.length;
   const interAvg = docFeedbacks.reduce((s, f) => s + f.userInteractiveness, 0) / docFeedbacks.length;
   const dressAvg = docFeedbacks.reduce((s, f) => s + f.dressCode, 0) / docFeedbacks.length;
+  const hygAvg = docFeedbacks.reduce((s, f) => s + (f.doctorHygiene ?? 0.8), 0) / docFeedbacks.length;
 
   res.json({
     doctor_id,
@@ -213,6 +245,7 @@ app.get('/api/feedback/doctor/:doctor_id', (req, res) => {
       conduct: Math.round(condAvg * 100) / 100,
       interactiveness: Math.round(interAvg * 100) / 100,
       dressCode: Math.round(dressAvg * 100) / 100,
+      doctorHygiene: Math.round(hygAvg * 100) / 100,
     },
     feedback_count: docFeedbacks.length,
     comments: docFeedbacks.map((f) => f.comments).filter(Boolean),
@@ -425,19 +458,22 @@ app.get('/api/performance/doctor/:doctor_id', (req, res) => {
   let comm = 0.8,
     cond = 0.8,
     inter = 0.8,
-    dress = 0.8;
+    dress = 0.8,
+    hyg = 0.8;
   if (docFeedbacks.length > 0) {
     comm = docFeedbacks.reduce((s, f) => s + f.communicationClarity, 0) / docFeedbacks.length;
     cond = docFeedbacks.reduce((s, f) => s + f.conduct, 0) / docFeedbacks.length;
     inter = docFeedbacks.reduce((s, f) => s + f.userInteractiveness, 0) / docFeedbacks.length;
     dress = docFeedbacks.reduce((s, f) => s + f.dressCode, 0) / docFeedbacks.length;
+    hyg = docFeedbacks.reduce((s, f) => s + (f.doctorHygiene ?? 0.8), 0) / docFeedbacks.length;
   }
 
-  const overallScore = Math.round(((comm + cond + inter + dress) / 4) * 100);
+  const overallScore = Math.round(((comm + cond + inter + dress + hyg) / 5) * 100);
 
   const weaknesses = [];
   if (comm < 0.6) weaknesses.push({ category: 'Communication Clarity', severity: 'critical' as const, percentage: Math.round((1 - comm) * 100) });
   if (cond < 0.6) weaknesses.push({ category: 'Doctor Conduct', severity: 'critical' as const, percentage: Math.round((1 - cond) * 100) });
+  if (hyg < 0.6) weaknesses.push({ category: 'Doctor Personal Hygiene & PPE', severity: 'critical' as const, percentage: Math.round((1 - hyg) * 100) });
   if (inter < 0.7) weaknesses.push({ category: 'User Interactiveness', severity: 'warning' as const, percentage: Math.round((1 - inter) * 100) });
   if (dress < 0.8) weaknesses.push({ category: 'Dress Code & Professionalism', severity: 'minor' as const, percentage: Math.round((1 - dress) * 100) });
 
@@ -458,6 +494,7 @@ app.get('/api/performance/doctor/:doctor_id', (req, res) => {
       conduct: Math.round(cond * 100) / 100,
       interactiveness: Math.round(inter * 100) / 100,
       dressCode: Math.round(dress * 100) / 100,
+      doctorHygiene: Math.round(hyg * 100) / 100,
     },
     trendDirection: overallScore >= 75 ? 'improving' : overallScore < 55 ? 'declining' : 'stable',
     weaknesses,
@@ -489,6 +526,7 @@ app.get('/api/performance/hospital/:hospital_id', (req, res) => {
     ranking: hospitals.sort((a, b) => b.totalScore - a.totalScore).findIndex((h) => h.id === hospital_id) + 1,
     components: {
       doctorSatisfaction: hosp.doctorSatisfactionScore,
+      sanitaryHygiene: hosp.sanitaryHygieneScore,
       attendance: hosp.attendanceScore,
       stockAvailability: hosp.stockAvailabilityScore,
       volumeEfficiency: hosp.volumeEfficiencyScore,

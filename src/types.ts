@@ -17,6 +17,7 @@ export interface Hospital {
   doctorSatisfactionScore: number;
   attendanceScore: number;
   stockAvailabilityScore: number;
+  sanitaryHygieneScore: number;
   volumeEfficiencyScore: number;
   trendDirection: TrendDirection;
   declinePercentage?: number;
@@ -47,6 +48,8 @@ export interface PatientFeedback {
   conduct: number;
   userInteractiveness: number;
   dressCode: number;
+  doctorHygiene?: number; // 0-1 scale (hand sanitization, gloves, personal cleanliness)
+  facilityHygiene?: number; // 0-1 scale (general hospital hygiene, waste disposal, clean wards)
   comments?: string;
   createdAt: string;
   language?: string;
@@ -108,7 +111,7 @@ export interface AlertItem {
   id: string;
   hospitalId: string;
   hospitalName: string;
-  alertType: 'stockout' | 'declining_performance' | 'attendance';
+  alertType: 'stockout' | 'declining_performance' | 'attendance' | 'hygiene_violation';
   severity: 'critical' | 'warning' | 'info';
   message: string;
   acknowledgedBy?: string;
@@ -126,6 +129,7 @@ export interface DoctorPerformanceAnalytics {
     conduct: number;
     interactiveness: number;
     dressCode: number;
+    doctorHygiene: number;
   };
   trendDirection: TrendDirection;
   weaknesses: { category: string; severity: 'critical' | 'warning' | 'minor'; percentage: number }[];

@@ -20,7 +20,7 @@ function getGeminiClient() {
 export async function generateDoctorAdviceServer(doctorName: string, specialization: string, analyticsData: any) {
   const ai = getGeminiClient();
   const prompt = `
-You are an empathetic medical mentor and health system advisor providing constructive feedback to help a doctor improve patient interaction skills.
+You are an empathetic medical mentor and health system advisor providing constructive feedback to help a doctor improve patient interaction skills and clinical hygiene.
 
 DOCTOR DATA:
 Name: ${doctorName}
@@ -31,16 +31,17 @@ Category Scores:
 - Conduct & Respect: ${(analyticsData.categoryScores?.conduct * 100).toFixed(0)}%
 - User Interactiveness: ${(analyticsData.categoryScores?.interactiveness * 100).toFixed(0)}%
 - Dress Code & Professionalism: ${(analyticsData.categoryScores?.dressCode * 100).toFixed(0)}%
+- Doctor Personal Hygiene & PPE: ${((analyticsData.categoryScores?.doctorHygiene || 0.8) * 100).toFixed(0)}%
 
 Trend Direction: ${analyticsData.trendDirection}
 Weaknesses Identified: ${JSON.stringify(analyticsData.weaknesses || [])}
 On-Time Arrival: ${analyticsData.attendanceOnTimePct}%
 
-TASK: Provide 3-5 supportive, highly practical, and actionable recommendations.
+TASK: Provide 3-5 supportive, highly practical, and actionable recommendations focusing on doctor-patient interaction and clinical hand/glove hygiene.
 
 REQUIREMENTS:
 1. Be supportive and encouraging
-2. Provide specific, practical advice tailored for primary healthcare / community clinics
+2. Provide specific, practical advice tailored for primary healthcare / community clinics (hand sanitization, clean coat, fresh gloves per patient)
 3. Address the lowest scoring category first
 4. Include quick wins for this week and long-term habits
 
@@ -78,17 +79,19 @@ You are a District Health Officer and medical management expert analyzing a decl
 HOSPITAL DATA:
 Name: ${hospitalName}
 Performance Score: ${performanceScore}%
+Sanitary & Hygiene Score: ${hospitalDetails.sanitaryHygieneScore || 65}%
 Trend: ${hospitalDetails.trendDirection} (Decline: ${hospitalDetails.declinePercentage || 12}%)
 Stockout Correlation Coefficient: ${stockoutCorrelation?.correlationCoefficient || 85}%
 Stockout Impact on Patient Satisfaction: ${stockoutCorrelation?.impactPercentage || 65}%
 Top Shortage Medicines: ${(stockoutCorrelation?.topShortageMedicines || ['Amoxicillin', 'Iron Folic Acid']).join(', ')}
 
-TASK: Create a comprehensive action plan for intervention.
+TASK: Create a comprehensive action plan for intervention addressing stock shortages, doctor attendance, and sanitation/medical waste disposal.
 
 CONSIDERATIONS:
-1. If stockout correlation > 60%, prioritize supply chain fixes and emergency buffer redistribution.
-2. If doctor arrival/attendance is low, include clinical shift scheduling and incentive support.
-3. Include specific recommendations to redistribute surplus medicines from neighboring CHCs/PHCs.
+1. If Sanitary & Hygiene Score < 60%, mandate immediate biohazard waste disposal protocols and daily clinic sanitation audits.
+2. If stockout correlation > 60%, prioritize supply chain fixes and emergency buffer redistribution.
+3. If doctor arrival/attendance is low, include clinical shift scheduling and incentive support.
+4. Include specific recommendations to redistribute surplus medicines from neighboring CHCs/PHCs.
 
 FORMAT OUTPUT IN MARKDOWN:
 ## 🏥 ${hospitalName} - Action Plan

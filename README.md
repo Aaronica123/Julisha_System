@@ -85,6 +85,10 @@ Julisha is built on a robust **Four-Tier Architecture**:
 ## 🚀 Key Features in the Applet
 
 - **Multilingual Support:** English, Swahili (Kiswahili), Hindi, Telugu, Tamil, and Kannada.
-- **Patient Feedback Hub:** Multilingual appointment feedback form with rating criteria, stock indicator reporting, and AI translation.
-- **Doctor Performance Hub:** Individual doctor dashboard showing patient review summaries, trend analysis, and AI-driven bedside manner & service delivery advice.
-- **District Administrator Dashboard:** District-wide map and metrics, stock correlation engine, real-time alert feed, and AI facility advisory reports.
+- **Sanitary & Hygiene Scoring Engine:**
+  - Evaluates both **Doctor Personal Hygiene & PPE** (hand sanitization, clean coat, gloves per patient) and **Hospital Sanitation & Disposal** (clean waiting areas, sterilised surfaces, biohazard medical waste disposal).
+  - Factors directly into facility overall composite rating with a **25% weighting**.
+  - Automatically flags facilities with sub-55% hygiene scores with critical **Sanitation & Hygiene Alerts** for district administrators even if doctor satisfaction or medicine stock appears acceptable.
+- **Patient Feedback Hub:** Multilingual appointment feedback form with 6 rating criteria (including Doctor Hygiene & Hospital Sanitation), biometric fingerprint verification, offline queue, and AI translation.
+- **Doctor Performance Hub:** Individual doctor dashboard showing patient review summaries, 5-domain performance breakdown (including Doctor Hygiene & PPE), trend analysis, and AI-driven clinical advice.
+- **District Administrator Dashboard:** District-wide performance matrix, stock correlation engine, Sanitary & Hygiene warning indicators, real-time alert feed, and Gemma AI facility advisory reports.

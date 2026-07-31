@@ -258,6 +258,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   <th className="p-3">Type</th>
                   <th className="p-3">District</th>
                   <th className="p-3 text-center">Satisfaction</th>
+                  <th className="p-3 text-center">Sanitation</th>
                   <th className="p-3 text-center">Stock Score</th>
                   <th className="p-3 text-center">Attendance</th>
                   <th className="p-3 text-center">Total Score</th>
@@ -270,7 +271,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   <tr key={hosp.id} className="hover:bg-slate-800/40 transition-all">
                     <td className="p-3 font-extrabold text-slate-300">#{idx + 1}</td>
                     <td className="p-3">
-                      <p className="font-bold text-slate-100">{hosp.name}</p>
+                      <div className="flex items-center space-x-1.5">
+                        <p className="font-bold text-slate-100">{hosp.name}</p>
+                        {hosp.sanitaryHygieneScore < 60 && (
+                          <span className="px-1.5 py-0.5 text-[9px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30 rounded" title="Flagged for Poor Hygiene & Biohazard Waste">
+                            ⚠️ Poor Hygiene
+                          </span>
+                        )}
+                      </div>
                       <p className="text-[10px] text-slate-500">{hosp.contactInfo.address}</p>
                     </td>
                     <td className="p-3">
@@ -280,6 +288,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     </td>
                     <td className="p-3 text-slate-300">{hosp.district}</td>
                     <td className="p-3 text-center font-semibold text-cyan-400">{hosp.doctorSatisfactionScore}%</td>
+                    <td className="p-3 text-center font-semibold">
+                      <span className={`px-2 py-0.5 rounded text-xs font-bold ${
+                        (hosp.sanitaryHygieneScore || 80) < 60
+                          ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
+                          : 'text-emerald-400'
+                      }`}>
+                        {hosp.sanitaryHygieneScore || 80}%
+                      </span>
+                    </td>
                     <td className="p-3 text-center font-semibold text-amber-400">{hosp.stockAvailabilityScore}%</td>
                     <td className="p-3 text-center font-semibold text-teal-400">{hosp.attendanceScore}%</td>
                     <td className="p-3 text-center">
@@ -440,7 +457,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             </div>
 
             {/* Scores breakdown */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-950 p-4 rounded-xl border border-slate-800">
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 bg-slate-950 p-4 rounded-xl border border-slate-800">
               <div>
                 <span className="text-[10px] text-slate-400 uppercase font-semibold">Total Score</span>
                 <p className="text-xl font-bold text-white">{selectedHospitalForModal.totalScore}%</p>
@@ -448,6 +465,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               <div>
                 <span className="text-[10px] text-slate-400 uppercase font-semibold">Satisfaction</span>
                 <p className="text-xl font-bold text-cyan-400">{selectedHospitalForModal.doctorSatisfactionScore}%</p>
+              </div>
+              <div>
+                <span className="text-[10px] text-slate-400 uppercase font-semibold">Sanitation & Hygiene</span>
+                <p className={`text-xl font-bold ${selectedHospitalForModal.sanitaryHygieneScore < 60 ? 'text-rose-400' : 'text-emerald-400'}`}>
+                  {selectedHospitalForModal.sanitaryHygieneScore || 80}%
+                </p>
               </div>
               <div>
                 <span className="text-[10px] text-slate-400 uppercase font-semibold">Attendance</span>
