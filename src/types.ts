@@ -156,4 +156,4 @@ export interface ResourceRedistributionPlan {
   status: 'recommended' | 'approved' | 'transferred';
 }
 
-export type LanguageCode = 'en' | 'hi' | 'sw' | 'te' | 'ta' | 'kn';
+export type LanguageCode = 'en' | 'sw';

@@ -100,6 +100,12 @@ export default function App() {
           />
         )}
       </main>
+
+      {/* Footer Container */}
+      <footer className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 pt-6 border-t border-slate-800/80 text-center text-xs text-slate-500 flex flex-wrap items-center justify-between gap-3">
+        <p>© 2026 Julisha AI Healthcare Operations & Patient Intelligence System</p>
+        <p className="font-mono text-emerald-400/90 font-semibold">Active Monitoring • English / Kiswahili</p>
+      </footer>
     </div>
   );
 }
