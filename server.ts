@@ -84,7 +84,8 @@ function recalculateHospitalScores(hospitalId: string) {
     stockAvailabilityScore = Math.round((availableCount / hospitalStocks.length) * 100);
   }
 
-  // Composite weighted score: 30% satisfaction, 25% sanitary hygiene, 20% stock, 15% attendance, 10% volume
+  // Composite weighted score across ALL 5 facility factors:
+  // 30% satisfaction, 25% sanitary hygiene, 20% stock, 15% attendance, 10% volume efficiency
   const composite = Math.round(
     (doctorSatisfactionScore * 0.30 +
       sanitaryHygieneScore * 0.25 +
@@ -93,6 +94,11 @@ function recalculateHospitalScores(hospitalId: string) {
       hospital.volumeEfficiencyScore * 0.10) *
       10
   ) / 10;
+
+  // Track previous total score to calculate net multi-factor delta independently of absolute score level
+  const previousScore = hospital.totalScore !== undefined ? hospital.totalScore : composite;
+  const delta = Math.round((composite - previousScore) * 10) / 10;
+  const REASONABLE_MARGIN = 2.5; // ±2.5% margin for steady trend shift
 
   hospital.doctorSatisfactionScore = doctorSatisfactionScore;
   hospital.sanitaryHygieneScore = sanitaryHygieneScore;
@@ -115,13 +121,22 @@ function recalculateHospitalScores(hospitalId: string) {
     }
   }
 
-  if (composite < hospital.totalScore - 3 || sanitaryHygieneScore < 55) {
-    hospital.trendDirection = 'declining';
-    hospital.declinePercentage = Math.round(((hospital.totalScore - composite) / (hospital.totalScore || 100)) * 100 * 10) / 10 || 12.5;
-  } else if (composite > hospital.totalScore + 3) {
+  // Determine trend direction independently of absolute score magnitude:
+  // Steady margin increase -> improving
+  // Steady margin drop or critical sanitary failure -> declining
+  // Within reasonable margin -> stable
+  if (delta > REASONABLE_MARGIN) {
     hospital.trendDirection = 'improving';
     hospital.declinePercentage = 0;
+  } else if (delta < -REASONABLE_MARGIN || sanitaryHygieneScore < 50) {
+    hospital.trendDirection = 'declining';
+    const dropPct = previousScore > 0 ? Math.round((Math.abs(delta) / previousScore) * 100 * 10) / 10 : 5.0;
+    hospital.declinePercentage = dropPct > 0 ? dropPct : (sanitaryHygieneScore < 50 ? 12.5 : 5.0);
+  } else {
+    hospital.trendDirection = 'stable';
+    hospital.declinePercentage = 0;
   }
+
   hospital.totalScore = composite;
   hospital.updatedAt = new Date().toISOString();
 }
